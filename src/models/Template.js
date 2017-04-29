@@ -1,27 +1,15 @@
 'use babel'
 
 import { templateManager } from '../templates'
+import { handleCommandKeys, resolveIcon, toggleMarkerClass } from '../utils'
+import { placeholderQuery, placeholderEndQuery } from '../constants'
 import { Range, Point } from 'atom'
 import { basename, extname } from 'path'
+import TemplateVariableAssignmentPanel from '../views/TemplateVariableAssignmentPanel'
 // const resolveVariablesFromRawContent = (content, template) => {
 //   content = `→ asd →; ${content}`;
 // }
 
-const ADVANCE_KEYS  = ['Enter', 'Tab']
-
-const CANCEL_KEYS   = ['Esc', ]
-
-const keypress      = ({ key }, haystack=[]) => new Promise(
-  (resolve, reject) => haystack.indexOf(key) > -1 ? resolve() : reject())
-
-const placeholderQuery    = /\[\[([\w-_\.]+)\]\]/g
-
-const placeholderEndQuery = /\]\]/g
-
-const resolveIcon = ({ type, icon }) =>
-  `icon icon-${type ? type.substring(1) : 'directory'} ` +
-  (icon || 'icon-file')
-  // FileIcons.iconClassForPath(path, "tree-view")
 
 export default class Template {
 
@@ -77,90 +65,73 @@ export default class Template {
   populate () {
 
     let iterator  = new Point(0, 0)
-    let className = 'file-templates-panel placeholder-variables'
-    let location  = 'top'
-    let priority  = 10000
-    let item  = document.createElement('section')
-    let panel = atom.workspace.addPanel(location, { item, className, priority })
     let lines = this.editor.buffer.getLines()
-    let btn   = document.createElement('button')
-
-    item.setAttribute('class', 'padded')
-    item.innerHTML = "<h3>Assign template variables</h3>"
-
-    btn.textContent = 'Close'
-    btn.setAttribute('class', 'btn')
-    btn.addEventListener('click', () => panel.destroy())
-
-    window.placeholderPanel = panel
-
+    let component = TemplateVariableAssignmentPanel.create()
     this.markers = []
     // this.replace()
 
-    const addVariableInput = ({ marker, range }) => {
-      let inputContainer = document.createElement("section")
-      inputContainer.innerHTML = '<atom-text-editor mini></atom-text-editor>'
-      item.appendChild(inputContainer)
-      let input = inputContainer.firstElementChild
-      let editor = input.getModel()
-      editor.setText(this.editor.buffer.getTextInRange(range))
+    const addVariableInput = ({ marker, decor, range }) => {
+
+      // Replace the editor's text
+      component.text = this.editor.buffer.getTextInRange(range)
+
+      const accept = () => {
+        console.error("N O T I C E M E S E N P A I ! 2", {marker})
+        marker.valid = false
+        next()
+        toggleMarkerClass(marker, 'unassigned', 'resolved', 'manually')
+      }
 
       // Bind event handlers
-      let subscription = editor.onDidStopChanging((/*{ changes }*/) => {
-        this.editor.buffer.setTextInRange(range, editor.getText())
-      })
-      editor.onDidDestroy(() => subscription.dispose())
-      input.addEventListener('keydown', (event) =>
-        keypress(event, ADVANCE_KEYS)
-        .then(advance)
-        .catch(panel.destroy)
-      )
+      component.onDidChange(() =>
+        this.editor.buffer.setTextInRange(range, component.text))
 
-      const advance = () => {
-        editor.destroy()
-        marker.destroy()
-        input.remove()
-        next()
-      }
+      component.onKeyDown(event => { handleCommandKeys(event, {
+        accept,
+        reject:  () => component.destroy(), }) })
     }
 
-    const next = () => {
-      if (this.markers.length)
-        addVariableInput(this.markers.shift())
-      else
-        panel.destroy()
-    }
+    const next = () => (this.markers.length) ?
+      addVariableInput(this.markers.shift()) :
+      component.destroy()
 
-    const addMarker = (point) => {
-      let {
-        column: x,
-        row:    y,
-      }          = point
-      let endPt  = new Point(y, x + lines[y].substr(x).search(placeholderEndQuery))
-      let range  = new Range(point, endPt)
+    const addMarker = (start, end) => {
+      // let {
+      //   row: y,
+      //   column: x, } = point
+      // let endPt  = new Point(y, x + lines[y].substr(x).search(placeholderEndQuery))
+      // let range  = new Range(point, endPt)
+      let range  = new Range(start, end)
       let marker = this.editor.markBufferRange(range, { invalidate: 'never', maintainHistory: true })
-      let decal  = this.editor.decorateMarker(marker, { type: 'highlight', class: 'template-variable unassigned' })
-      this.markers.push({ marker, decal, range })
+      let decor  = this.editor.decorateMarker(marker, { type: 'highlight', class: 'template-variable unassigned' })
+      this.markers.push({ marker, decor, range })
     }
 
-    const findPlaceholder = () => {
+    const iterateLine = (rem) => {
+      if (!rem || rem.length < 4)
+        return
 
+      let match = rem.match(placeholderQuery)
+      console.info("match", { match, rem, iter: iterator.copy()})
+      if (!match)
+        return false
+
+      let { index } = match
+      let len   = match[0].length
+      let nudge = index + len
+      let start = iterator.copy().translate([0, index])
+      let end = start.copy().translate([0, len])
+
+      addMarker(start, end)
+      iterator = iterator.traverse([0, nudge])
+      return iterateLine(rem.substr(nudge))
     }
 
     for (let n in lines) {
-      let line   = lines[n]
-      let row    = parseInt(n)
-      let col    = 0
-
-      if (col > -1) {
-        col = line.substr(col).search(placeholderQuery)
-        if (col > -1)
-          addMarker(new Point(row, col))
-      }
+      let stream = lines[n]
+      iterator = iterator.traverse([1, 0])
+      iterateLine(stream)
     }
-
-    item.appendChild(document.createElement("br"))
-    item.appendChild(btn)
     next()
   }
 
