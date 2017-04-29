@@ -1,0 +1,48 @@
+
+.filepath-prompt {
+  min-width: 60vw
+}
+.file-templates-list {
+  @import "ui-variables";
+  @duration: .4s;
+
+  padding-bottom: @component-padding;
+
+  > .btn.icon-chevron-right::before {
+    transition: @duration / 2 transform ease }
+
+  &.expanded > .btn.icon-chevron-right::before {
+    transform: rotate(90deg) }
+
+  .list-group {
+    max-height: 50vh;
+    opacity:    1;
+    overflow:   auto;
+    transition: @duration max-height ease, @duration opacity ease-out }
+
+  .list-group.hidden {
+    display:    block !important;
+    opacity:    0;
+    max-height: 0 !important }
+}
+
+
+.placeholder-variables {
+  min-height:   12em;
+  min-width:    12em;
+}
+
+
+.template-variable {
+
+  @import "ui-variables";
+  @import "syntax-variables";
+
+  .region {
+    border-radius: 2px }
+
+  &.unassigned .region {
+    // background: mix(@syntax-result-marker-color, @text-color-info) !important;
+    background: mix(@syntax-background-color, @syntax-result-marker-color) !important;
+    opacity: 0.5 !important }
+}
