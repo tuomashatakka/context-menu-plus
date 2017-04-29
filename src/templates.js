@@ -8,7 +8,7 @@ export default class TemplateInterface {
 
   constructor () {
     const dirname = 'file-templates'
-    const path = join(atom.storageFolder.path, dirname)
+    const path = join(atom.getStorageFolder().getPath(), dirname)
     this.directory = new Directory(path)
     this.directory
       .exists()

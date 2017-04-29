@@ -1,14 +1,22 @@
 'use babel'
 
 import { templateManager } from '../templates'
-import { Range } from 'atom'
+import { Range, Point } from 'atom'
 import { basename, extname } from 'path'
+// const resolveVariablesFromRawContent = (content, template) => {
+//   content = `→ asd →; ${content}`;
+// }
 
-const placeholderQuery = /\[\[([\w-_\.]+)\]\]/g
+const ADVANCE_KEYS  = ['Enter', 'Tab']
+
+const CANCEL_KEYS   = ['Esc', ]
+
+const keypress      = ({ key }, haystack=[]) => new Promise(
+  (resolve, reject) => haystack.indexOf(key) > -1 ? resolve() : reject())
+
+const placeholderQuery    = /\[\[([\w-_\.]+)\]\]/g
+
 const placeholderEndQuery = /\]\]/g
-const resolveVariablesFromRawContent = (content, template) => {
-  content = `→ asd →; ${content}`;
-}
 
 const resolveIcon = ({ type, icon }) =>
   `icon icon-${type ? type.substring(1) : 'directory'} ` +
@@ -68,6 +76,7 @@ export default class Template {
 
   populate () {
 
+    let iterator  = new Point(0, 0)
     let className = 'file-templates-panel placeholder-variables'
     let location  = 'top'
     let priority  = 10000
@@ -95,12 +104,17 @@ export default class Template {
       let input = inputContainer.firstElementChild
       let editor = input.getModel()
       editor.setText(this.editor.buffer.getTextInRange(range))
+
+      // Bind event handlers
       let subscription = editor.onDidStopChanging((/*{ changes }*/) => {
         this.editor.buffer.setTextInRange(range, editor.getText())
-        // range = range + newRange
       })
       editor.onDidDestroy(() => subscription.dispose())
-      input.addEventListener('keydown', ({ key }) => (key === "Enter") ? advance() : null)
+      input.addEventListener('keydown', (event) =>
+        keypress(event, ADVANCE_KEYS)
+        .then(advance)
+        .catch(panel.destroy)
+      )
 
       const advance = () => {
         editor.destroy()
@@ -117,21 +131,32 @@ export default class Template {
         panel.destroy()
     }
 
+    const addMarker = (point) => {
+      let {
+        column: x,
+        row:    y,
+      }          = point
+      let endPt  = new Point(y, x + lines[y].substr(x).search(placeholderEndQuery))
+      let range  = new Range(point, endPt)
+      let marker = this.editor.markBufferRange(range, { invalidate: 'never', maintainHistory: true })
+      let decal  = this.editor.decorateMarker(marker, { type: 'highlight', class: 'template-variable unassigned' })
+      this.markers.push({ marker, decal, range })
+    }
+
+    const findPlaceholder = () => {
+
+    }
+
     for (let n in lines) {
       let line   = lines[n]
       let row    = parseInt(n)
-      let col    = line.search(placeholderQuery)
+      let col    = 0
 
-      while (col > -1) {
-        let len    = line.substr(col).search(placeholderEndQuery) //+ placeholderEndQuery.source.length
-        let editor = this.editor
-        let range  = new Range([row, col], [row, col + len])
-        let marker = editor.markBufferRange(range)
-        let decal  = editor.decorateMarker(marker, { type: 'highlight', class: 'template-variable unassigned' })
-        col       += len
-        this.markers.push({ marker, decal, range })
+      if (col > -1) {
+        col = line.substr(col).search(placeholderQuery)
+        if (col > -1)
+          addMarker(new Point(row, col))
       }
-
     }
 
     item.appendChild(document.createElement("br"))
