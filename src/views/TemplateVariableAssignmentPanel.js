@@ -1,76 +1,12 @@
 'use babel'
 
-import React, { Component } from 'react'
-import { render } from 'react-dom'
-import Emitter from 'events'
-import { CompositeDisposable, Disposable } from 'atom'
+import React from 'react'
+import { Disposable } from 'atom'
+
+import BasePanelComponent from './BasePanelComponent'
 import { ERROR } from '../constants'
 
 
-class BasePanelComponent extends Component {
-
-  static location = 'top'
-  static priority = 10000
-  static className = 'placeholder-variables tool-panel file-templates-panel padded'
-
-  static create (props={}) {
-
-    const panel = atom.workspace.addPanel(
-      this.location,
-      { className:  this.className,
-        priority:   this.priority,
-        item:       document.createElement('i'), // Just a placeholder
-      }
-    )
-    let ComponentClass = this
-    let instance       = <ComponentClass {...props} panel={panel}  />
-    let component      = render(instance, panel.getElement())
-    component.panel    = panel
-
-    return component
-  }
-
-  constructor (props) {
-    super(props)
-    this.emitter        = new Emitter()
-    this.subscriptions  = new CompositeDisposable()
-
-    // Bind self to the instance methods
-    this.registerEvents()
-    this.destroy        = this.destroy.bind(this)
-    this.onDidDestroy   = this.onDidDestroy.bind(this)
-  }
-
-  get panel () {
-    return this.props.panel
-  }
-
-  registerEvents () {
-    this.subscriptions.add(new Disposable(this.emitter.removeAllListeners))
-    this.subscriptions.add(this.panel.onDidDestroy(event => this.emitter.emit('did-destroy', event)))
-  }
-
-  onDidDestroy (fnc) {
-    this.emitter.on('did-destroy', event => fnc(event, this, this.panel))
-  }
-
-  destroy () {
-    this.panel.destroy()
-    this.subscriptions.dispose()
-  }
-
-  render () {
-    throw new Error(`Classes extending ${this.name} should implement
-      a render method that will return valid JSX. Please see React's
-      manual for additional information.`)
-    return <div></div>
-  }
-
-}
-/**
- * @class
- * @extends React.Component
- */
 export default class TemplateVariableAssignmentPanel extends BasePanelComponent {
 
   constructor (props) {
@@ -108,7 +44,6 @@ export default class TemplateVariableAssignmentPanel extends BasePanelComponent 
       this.text = editorContent
     return editorContent
   }
-
 
   setEditorReference(ref) {
 
@@ -161,8 +96,22 @@ export default class TemplateVariableAssignmentPanel extends BasePanelComponent 
 
   }
 
-  onDidChange (fnc) { this.emitter.on('did-change', event => fnc(event, this.editor)) }
-  onKeyDown (fnc) { this.emitter.on('did-press-key', event => fnc(event, this.editor)) }
+  onDidChange (fnc) {
+    this.emitter.on('did-change', fnc)
+    return new Disposable(() => this.emitter.removeListener('did-change', fnc))
+  }
+
+  onKeyDown (fnc) {
+    let cbk = event => {
+      let returnValue = fnc(event, this.editor)
+      if (returnValue === false) {
+        event.stopImmediatePropagation()
+        return false
+      }
+    }
+    this.emitter.on('did-press-key', cbk)
+    return new Disposable(() => this.emitter.removeListener('did-press-key', cbk))
+  }
 
   get field () {
     return <atom-text-editor mini

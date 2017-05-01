@@ -30,4 +30,9 @@ export const ERROR = {
   Ideas:
    - Go play tag outside`,
 
+
+  PANEL_COMPONENT_RENDER: `Classes extending BasePanelComponent should
+  implement a render method that will return valid JSX. Please see React's
+  manual for additional information.`,
+
 }

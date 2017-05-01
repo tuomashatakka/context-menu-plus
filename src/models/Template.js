@@ -2,8 +2,8 @@
 
 import { templateManager } from '../templates'
 import { handleCommandKeys, resolveIcon, toggleMarkerClass } from '../utils'
-import { placeholderQuery, placeholderEndQuery } from '../constants'
-import { Range, Point } from 'atom'
+import { placeholderQuery } from '../constants'
+import { Range, CompositeDisposable } from 'atom'
 import { basename, extname } from 'path'
 import TemplateVariableAssignmentPanel from '../views/TemplateVariableAssignmentPanel'
 // const resolveVariablesFromRawContent = (content, template) => {
@@ -19,12 +19,13 @@ export default class Template {
     this.icon = resolveIcon({ icon })
     this.extension = extname(path)
     window.activeTemplate = this
+
   }
 
   get file () {
-    let manager = templateManager()
-    console.info("MANAGER:", { manager, template: this, path: this.path })
-    return manager.get(this.path)
+
+    return templateManager().get(this.path)
+
   }
 
   get content () {
@@ -35,22 +36,24 @@ export default class Template {
       let execute  = content =>
           resolve({ content, template })
       if(file)
-        file
-        .read()
-        .then(execute)
+        file.read().then(execute)
       else execute('')
     })
     .then(callback)
     .catch(callback)
+
   }
 
   get constants () {
+
     return {
       'pelle': 'avocado',
     }
+
   }
 
   replace (key=null, val=null) {
+
     return this.editor.buffer.replace(placeholderQuery, (_, original) => {
       let constants = this.constants
       let fallbackValue = constants[key || original] || original
@@ -60,12 +63,14 @@ export default class Template {
         return fallbackValue
       return key.indexOf(original) > -1 ? val : original
     })
+
   }
 
   populate () {
 
-    let iterator  = new Point(0, 0)
-    let lines = this.editor.buffer.getLines()
+    const bfr = () => this.editor.buffer
+    let iterator  = bfr().getFirstPosition()
+    let endPosition = bfr().getEndPosition()
     let component = TemplateVariableAssignmentPanel.create()
     this.markers = []
     // this.replace()
@@ -74,66 +79,66 @@ export default class Template {
 
       // Replace the editor's text
       component.text = this.editor.buffer.getTextInRange(range)
+      let subscriptions = new CompositeDisposable()
+
+      const reject = () =>
+        component.destroy()
 
       const accept = () => {
-        console.error("N O T I C E M E S E N P A I ! 2", {marker})
+        // mirrorChanges()
         marker.valid = false
-        next()
+        subscriptions.dispose()
         toggleMarkerClass(marker, 'unassigned', 'resolved', 'manually')
+        next()
       }
 
-      // Bind event handlers
-      component.onDidChange(() =>
-        this.editor.buffer.setTextInRange(range, component.text))
+      const mirrorChanges = () => {
+        if (marker.isValid())
+          bfr().setTextInRange(range, component.text)
+      }
 
-      component.onKeyDown(event => { handleCommandKeys(event, {
-        accept,
-        reject:  () => component.destroy(), }) })
+      const handleCommand = event =>
+        handleCommandKeys(event, { accept, reject, })
+
+      // Bind event handlers
+      subscriptions.add(component.onDidChange(mirrorChanges))
+      subscriptions.add(component.onKeyDown(handleCommand))
+
     }
 
-    const next = () => (this.markers.length) ?
+    const next = () => {
+      console.log(this.markers.length, this.markers) // FIXME: Remove
+
+      return (this.markers.length) ?
       addVariableInput(this.markers.shift()) :
       component.destroy()
+    }
 
-    const addMarker = (start, end) => {
-      // let {
-      //   row: y,
-      //   column: x, } = point
-      // let endPt  = new Point(y, x + lines[y].substr(x).search(placeholderEndQuery))
-      // let range  = new Range(point, endPt)
-      let range  = new Range(start, end)
+    const addMarker = (start, end=null) => {
+      let range  = end ? new Range(start, end) : start
       let marker = this.editor.markBufferRange(range, { invalidate: 'never', maintainHistory: true })
       let decor  = this.editor.decorateMarker(marker, { type: 'highlight', class: 'template-variable unassigned' })
       this.markers.push({ marker, decor, range })
     }
 
-    const iterateLine = (rem) => {
-      if (!rem || rem.length < 4)
-        return
+    while (iterator.compare(endPosition) < 1) {
 
-      let match = rem.match(placeholderQuery)
-      console.info("match", { match, rem, iter: iterator.copy()})
-      if (!match)
-        return false
-
-      let { index } = match
-      let len   = match[0].length
-      let nudge = index + len
-      let start = iterator.copy().translate([0, index])
-      let end = start.copy().translate([0, len])
-
-      addMarker(start, end)
-      iterator = iterator.traverse([0, nudge])
-      return iterateLine(rem.substr(nudge))
+      let scanRn = new Range(iterator, endPosition)
+      bfr().scanInRange(
+        placeholderQuery,
+        scanRn,
+        result => {
+          let { range } = result
+          addMarker(range)
+          iterator = iterator.traverse(range.end)
+        })
     }
 
-    for (let n in lines) {
-      let stream = lines[n]
-      iterator = iterator.traverse([1, 0])
-      iterateLine(stream)
-    }
     next()
   }
+
+
+
 
   apply (textEditor) {
 
