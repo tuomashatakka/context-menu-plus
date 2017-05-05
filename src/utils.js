@@ -1,7 +1,7 @@
 'use babel'
 
 import { ADVANCE_KEYS, CANCEL_KEYS } from './constants'
-
+import { dirname, join } from 'path'
 
 // Check if the provided key is within the given haystack
 // and return a Promise that is either resolved if the key
@@ -56,3 +56,11 @@ export const toggleMarkerClass = (marker, ...classList) => {
     .concat(add)
     .join(' ')
   return marker }
+
+
+export const getSettingsViewModule = (name=null) => {
+  let mod = atom.packages.getLoadedPackage('settings-view')
+  return name ?
+    require(join(dirname(mod.getMainModulePath()), name)) :
+    mod.mainModule
+}

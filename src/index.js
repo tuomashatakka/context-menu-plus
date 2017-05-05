@@ -1,7 +1,9 @@
 'use babel'
 
+import React from 'react'
 import { CompositeDisposable } from 'atom'
 import Dialog from './views/NewFileDialog'
+import SettingsPanel from './views/SettingsTemplatePanel'
 
 let modals = {}
 let commands = {}
@@ -87,12 +89,7 @@ export default {
   activate(/*state={}*/) {
 
     atom.notifications.addSuccess('file-templates')
-    this.subscriptions = new CompositeDisposable()
-    // const onAddTab = atom.workspace.onDidAddTextEditor(({ item }) => {
-    //     pending = item
-    //     if (item.isEmpty && item.isEmpty() && item.getURI && !item.getURI())
-    //       return false
-    // })
+
     const onChangeTab = atom.workspace.observeTextEditors((item) => {
       if (item.isEmpty && !item.isEmpty())
         active = {
@@ -103,11 +100,34 @@ export default {
         }
       else
         return false
+
     })
+
+    const changeTabSubscription = atom.workspace.observePaneItems(item => {
+      console.info(item.constructor.name, item.constructor.name !== 'SettingsView')
+      if (item.constructor.name !== 'SettingsView')
+        return
+      let name = 'File Templates'
+      let icon = 'file-directory'
+      let panel = SettingsPanel.create({ name, icon })
+      // element.innerHTML = '<h3>' + title + '</h3>'
+      console.log(panel)
+      item.addCorePanel(panel.name, panel.icon, () => panel)
+    })
+
+
+    this.subscriptions = new CompositeDisposable()
+    this.subscriptions.add(onChangeTab)
+    this.subscriptions.add(changeTabSubscription)
+
+    observeCommand('application:new-file', onWillAddNewFile)
     // this.subscriptions.add(onAddTab)
     // observeCommand('core:save', onFileSave)
-    this.subscriptions.add(onChangeTab)
-    observeCommand('application:new-file', onWillAddNewFile)
+    // const onAddTab = atom.workspace.onDidAddTextEditor(({ item }) => {
+    //     pending = item
+    //     if (item.isEmpty && item.isEmpty() && item.getURI && !item.getURI())
+    //       return false
+    // })
   },
 
   deactivate() {

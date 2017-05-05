@@ -26,6 +26,7 @@ export default class TemplateInterface {
   }
 
   getAll () {
+    // TODO: Decorate output
     return this.directory.getEntriesSync()
   }
 
