@@ -1,83 +1,14 @@
 'use babel'
 import React, { Component } from 'react'
 import { render } from 'react-dom'
-import { Disposable, CompositeDisposable, File, Directory, TextEditor } from 'atom'
-import { dirname, resolve, extname, basename, join, sep } from 'path'
-import { existsSync, readSync } from 'fs'
-import Templates, { templateManager } from '../templates'
+import { Disposable, CompositeDisposable, Directory, TextEditor } from 'atom'
+import { extname, basename, join, sep } from 'path'
+import { existsSync } from 'fs'
+import { templateManager } from '../templates'
 import Template from '../models/Template'
-// import FileIcons from '../default-file-icons'
-
-function bindDisposableEvent (name, handler, target=null) {
-  target = target || this
-  let dispatch  = (event) => handler(event)
-  let dispose = new Disposable(
-    () => target.removeEventListener(name, dispatch))
-  target.addEventListener(name, dispatch)
-  return dispose
-}
-
-function bindKeys ({key, ctrlKey}) {
-  if (['Enter', 'Tab'].indexOf(key) > -1)
-    this.submit()
-  else if (key === 'Escape' || ctrlKey && key === 'w')
-    this.hide()
-}
-
-const toRelativePath = path => {
-  let paths = atom.project.getPaths()
-  let root = paths.length === 1 ? paths[0] : null
-  path = resolve(path ? dirname(path) : root || '.') + sep
-  if (root && path.startsWith(paths[0]))
-    return path.substr(root.length + 1)
-  return path
-}
-
-const dir = path => toRelativePath(path)
-
-const icon = ({ type, icon }) =>
-  `icon icon-${type ? type.substring(1) : 'directory'} ` +
-  (icon || 'icon-file')
-  // FileIcons.iconClassForPath(path, "tree-view")
-
-const Toolbar = ({ buttons }) =>
-  <div className='block btn-toolbar pull-right'>
-    {buttons.map(({ text, action, style }, n) =>
-      <button
-       key={n}
-       className={`btn btn-` + (style || 'default')}
-       onClick={action}>
-        {text}
-      </button>
-    )}
-  </div>
-
-const toggleNext = ({ target: el }) => {
-  el.parentElement.classList.toggle('collapsed')
-  el.parentElement.classList.toggle('expanded')
-  el.nextElementSibling.classList.toggle('hidden')
-}
-
-const List = ({ items, select }) =>
-  <div className='file-templates-list select-list collapsed'>
-
-    <button
-     className='btn icon icon-chevron-right'
-     onClick={toggleNext}>
-      Use a template
-    </button>
-
-    <ol className='list-group hidden'>
-      {items.map(item =>
-        <li
-         key={item.name}
-         onClick={() => select(item)}
-         className={icon(item) + (item.selected() ? ' selected' : '')}>
-          {item.name}
-        </li>
-      )}
-    </ol>
-  </div>
+import { bindDisposableEvent, bindControlKeys, bindNavigationKeys, dir } from '../utils'
+import Toolbar from './components/ToolbarComponent'
+import List from './components/ListComponent'
 
 
 class DialogContents extends Component {
@@ -114,7 +45,15 @@ export default class Dialog {
     this.templates.add('index_with_content.js', 'kikki hiir on [[pelle]]')
     this.render()
 
-    this.subscriptions.add(bindDisposableEvent('keydown', bindKeys.bind(this), this.input.element))
+    this.subscriptions.add(bindDisposableEvent(
+      'keydown', bindControlKeys.bind(this), this.input.element))
+
+    this.subscriptions.add(bindDisposableEvent(
+      'keydown', event => bindNavigationKeys.call(this, event,
+        function() {
+          console.info(arguments, this)
+        }
+      ), this.input.element))
   }
 
   destroy () {

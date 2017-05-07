@@ -2,18 +2,16 @@
 
 
 // Regular expression for resolving placeolders in a template
-export const placeholderQuery    = /\[\[([\w-_\.]+)\]\]/im
+export const placeholderQuery    = /\[\[([^\]]+)\]\]/ig
 
 // Support regex for the end matcher of the placeholder
 export const placeholderEndQuery = /\]\]/im
 
-
-
 // Keys that should generally resolve to a submission event
-export const ADVANCE_KEYS  = ['Enter', 'Tab']
+export const ADVANCE_KEYS  = ['Enter', 'Tab', ]
 
 // Keys that cancel the current action and close the related UI element(s)
-export const CANCEL_KEYS   = ['Esc', ]
+export const CANCEL_KEYS   = ['Esc', 'Escape', 'Break', ]
 
 
 

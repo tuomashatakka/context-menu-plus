@@ -6,139 +6,139 @@ import { placeholderQuery } from '../constants'
 import { Range, CompositeDisposable } from 'atom'
 import { basename, extname } from 'path'
 import TemplateVariableAssignmentPanel from '../views/TemplateVariableAssignmentPanel'
-// const resolveVariablesFromRawContent = (content, template) => {
-//   content = `→ asd →; ${content}`;
-// }
+import TemplateVariableMarker from './TemplateVariableMarker'
+
 
 
 export default class Template {
 
   constructor ({ icon, path }) {
-    this.path = path
-    this.name = basename(path)
-    this.icon = resolveIcon({ icon })
-    this.extension = extname(path)
-    window.activeTemplate = this
+    this.markers          = []
+    this.consumedMarkers  = []
+    this.extension        = extname(path)
+    this.name             = basename(path)
+    this.icon             = resolveIcon({ icon })
+    this.path             = path
+  }
 
+  get active () {
+    return this.markers.length ? true : false
   }
 
   get file () {
-
     return templateManager().get(this.path)
-
   }
 
   get content () {
+    return callback =>
 
-    return callback => new Promise(resolve => {
-      let { file } = this
-      let template = this
-      let execute  = content =>
+      new Promise(resolve => {
+        let { file } = this
+        let template = this
+        let content  = ''
+
+        if(file)
+          file.read().then(content => resolve({ content, template }))
+
+        else
           resolve({ content, template })
-      if(file)
-        file.read().then(execute)
-      else execute('')
-    })
-    .then(callback)
-    .catch(callback)
 
+      })
+      .then(c => callback(c))
+      .catch(c => { console.error(c) })
   }
 
   get constants () {
-
     return {
-      'pelle': 'avocado',
+      ...process.env
     }
-
   }
 
-  replace (key=null, val=null) {
+  restoreMarker (n=0) {
+    if (this.consumedMarkers && this.consumedMarkers.length) {
+      let mk = this.consumedMarkers.pop()
+      this.markers.unshift(mk)
+      return mk
+    }
+    return false
+  }
 
-    return this.editor.buffer.replace(placeholderQuery, (_, original) => {
-      let constants = this.constants
-      let fallbackValue = constants[key || original] || original
+  consumeNextMarker () {
+    if (this.markers.length) {
+      let mk = this.markers.pop()
+      this.consumedMarkers.push(mk)
+      return mk
+    }
+    return false
+  }
 
-      atom.notifications.addInfo("replaced " + original + " with " + val + " " + JSON.stringify(constants))
-      if (!key || !val)
-        return fallbackValue
-      return key.indexOf(original) > -1 ? val : original
-    })
-
+  addMarker (range) {
+    this.markers = this.markers || []
+    let marker = new TemplateVariableMarker(this, range)
+    this.markers.push(marker)
+    return marker
   }
 
   populate () {
 
-    const bfr = () => this.editor.buffer
-    let iterator  = bfr().getFirstPosition()
-    let endPosition = bfr().getEndPosition()
-    let component = TemplateVariableAssignmentPanel.create()
-    this.markers = []
-    // this.replace()
+    let iterator    = this.editor.buffer.getFirstPosition()
+    let endPosition = this.editor.buffer.getEndPosition()
+    let component   = TemplateVariableAssignmentPanel.create()
+    this.markers    = []
 
-    const addVariableInput = ({ marker, decor, range }) => {
+    const addVariableInput = marker => {
 
-      // Replace the editor's text
-      component.text = this.editor.buffer.getTextInRange(range)
+      // Replace the text of the input field
+      component.update(marker.content)
+
+      // Bind event handlers
       let subscriptions = new CompositeDisposable()
+      subscriptions.add(component.onDidChange(() => marker.update(component.text)))
+      subscriptions.add(component.onDidAccept(() => proceed(marker)))
+      subscriptions.add(component.onNavigate(n => n < 0 ? prev() : next()))
+      // subscriptions.add(component.onKeyDown((ev) => {
+      //   console.info(ev)
+      //   return ev.key === '+' ? prev() : null
+      // }))
 
-      const reject = () =>
-        component.destroy()
-
-      const accept = () => {
-        // mirrorChanges()
-        marker.valid = false
+      // Handler callbacks
+      const proceed = marker => {
+        marker.invalidate()
         subscriptions.dispose()
-        toggleMarkerClass(marker, 'unassigned', 'resolved', 'manually')
         next()
       }
 
-      const mirrorChanges = () => {
-        if (marker.isValid())
-          bfr().setTextInRange(range, component.text)
-      }
+    }
 
-      const handleCommand = event =>
-        handleCommandKeys(event, { accept, reject, })
-
-      // Bind event handlers
-      subscriptions.add(component.onDidChange(mirrorChanges))
-      subscriptions.add(component.onKeyDown(handleCommand))
-
+    const prev = () => {
+      let mk = this.restoreMarker()
+      if (mk)
+        addVariableInput(mk)
+      else
+        component.destroy()
     }
 
     const next = () => {
-      console.log(this.markers.length, this.markers) // FIXME: Remove
-
-      return (this.markers.length) ?
-      addVariableInput(this.markers.shift()) :
-      component.destroy()
+      let mk = this.consumeNextMarker()
+      if(mk)
+        addVariableInput(mk)
+      else
+        component.destroy()
     }
 
-    const addMarker = (start, end=null) => {
-      let range  = end ? new Range(start, end) : start
-      let marker = this.editor.markBufferRange(range, { invalidate: 'never', maintainHistory: true })
-      let decor  = this.editor.decorateMarker(marker, { type: 'highlight', class: 'template-variable unassigned' })
-      this.markers.push({ marker, decor, range })
-    }
+    // while (iterator.compare(endPosition) < 1) {
+      // let scanRn = new Range(iterator, endPosition)
 
-    while (iterator.compare(endPosition) < 1) {
+      this.editor.buffer.backwardsScan(placeholderQuery, /*scanRn,*/ result => {
+        this.addMarker(result.range)
+        // iterator = iterator.traverse(result.range.end)
+      })
 
-      let scanRn = new Range(iterator, endPosition)
-      bfr().scanInRange(
-        placeholderQuery,
-        scanRn,
-        result => {
-          let { range } = result
-          addMarker(range)
-          iterator = iterator.traverse(range.end)
-        })
-    }
+    // }
 
+    // Initiate assignment
     next()
   }
-
-
-
 
   apply (textEditor) {
 
@@ -167,5 +167,19 @@ export default class Template {
       return ''
     return f.readSync()
   }
+
+  // replace (key=null, val=null) {
+  //
+  //   return this.editor.buffer.replace(placeholderQuery, (_, original) => {
+  //     let constants = this.constants
+  //     let fallbackValue = constants[key || original] || original
+  //
+  //     atom.notifications.addInfo("replaced " + original + " with " + val + " " + JSON.stringify(constants))
+  //     if (!key || !val)
+  //       return fallbackValue
+  //     return key.indexOf(original) > -1 ? val : original
+  //   })
+  //
+  // }
 
 }

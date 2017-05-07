@@ -5,6 +5,7 @@ import { render } from 'react-dom'
 import { CompositeDisposable, Disposable } from 'atom'
 import SettingsGeneralPanel from './SettingsGeneralPanel'
 import { templateManager } from '../templates'
+import List from './components/ListComponent'
 
 
 const REGEX = { VISIBLE: /display:(?:\s*)(block)/ig }
@@ -85,7 +86,12 @@ export default class SettingsTemplatePanel extends Component {
   }
 
   render () {
-    let { children } = this.props
+    let templates = templateManager().getAll().map(template => ({
+      icon: 'file',
+      name: template.path,
+      path: template.path,
+      selected: () => false,
+    }))
 
     return (
 
@@ -98,16 +104,14 @@ export default class SettingsTemplatePanel extends Component {
         {children}
 
         <h2 className='block'>Template files</h2>
-        <ol className='list-tree'>
-        {templateManager().getAll().map(template =>
 
-          <li className='list-item template-item'>
-            {template.path}
-          </li>
-        )}
+        <List
+         items={templates}
+         select={item => atom.workspace.open(item.path)}
+         displayToggleButton={false} />
 
-        </ol>
-      </section>
+    </section>
+
     )
   }
 }

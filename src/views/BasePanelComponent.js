@@ -37,19 +37,14 @@ export default class BasePanelComponent extends Component {
     this.subscriptions  = new CompositeDisposable()
 
     // Bind self to the instance methods
-    this.registerEvents()
     this.destroy        = this.destroy.bind(this)
     this.onDidDestroy   = this.onDidDestroy.bind(this)
   }
 
-  get panel () {
-    return this.props.panel
-  }
-
-  registerEvents () {
-    this.subscriptions.add(new Disposable(this.emitter.removeAllListeners))
-    this.subscriptions.add(this.panel.onDidDestroy(event => this.emitter.emit('did-destroy', event)))
-  }
+  get panel () { return this.props.panel }
+  toggle = () => this.panel.toggle()
+  hide   = () => this.panel.hide()
+  show   = () => this.panel.show()
 
   onDidDestroy (fnc) {
     this.emitter.on('did-destroy', event => fnc(event, this, this.panel))
@@ -58,6 +53,7 @@ export default class BasePanelComponent extends Component {
   destroy () {
     this.panel.destroy()
     this.subscriptions.dispose()
+    // this.emitter.removeAllListeners()
   }
 
   render () {
