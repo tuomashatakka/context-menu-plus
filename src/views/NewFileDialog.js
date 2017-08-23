@@ -1,59 +1,26 @@
 'use babel'
-import React, { Component } from 'react'
+import React from 'react'
 import { render } from 'react-dom'
-import { Disposable, CompositeDisposable, Directory, TextEditor } from 'atom'
-import { extname, basename, join, sep } from 'path'
+import { Disposable, Directory, TextEditor } from 'atom'
+import { join, sep, basename, dirname } from 'path'
 import { existsSync } from 'fs'
-import { templateManager } from '../templates'
+import { getTemplates, getNullTemplateItem, compareTemplates } from '../templates'
 import Template from '../models/Template'
-import { bindDisposableEvent, bindControlKeys, bindNavigationKeys, dir } from '../utils'
 import Toolbar from './components/ToolbarComponent'
 import List from './components/ListComponent'
+import DialogContents from './components/DialogContents'
+import BaseDialog from './components/Dialog'
 
 
-class DialogContents extends Component {
-
-  constructor (props) {
-    super(props)
-    this.state = {
-      errors: [],
-    }
-  }
-
-  render () {
-    let { children } = this.props
-    return <div>
-      <div className='alert text-error'>
-        {this.state.errors.map((err, n) => <p key={n}>{err}</p>)}
-      </div>
-      {children}
-    </div>
-  }
-}
-
-
-export default class Dialog {
+export default class Dialog extends BaseDialog {
 
   constructor (name) {
+    super({ name })
 
-    this.errors = []
-    this.name   = name
-    this.item   = document.createElement('div')
-
-    this.subscriptions = new CompositeDisposable()
     this.insertEditor = this.insertEditor.bind(this)
-    this.templates.add('index_with_content.js', 'kikki hiir on [[pelle]]')
+    this.rootPath = '/'
     this.render()
 
-    this.subscriptions.add(bindDisposableEvent(
-      'keydown', bindControlKeys.bind(this), this.input.element))
-
-    this.subscriptions.add(bindDisposableEvent(
-      'keydown', event => bindNavigationKeys.call(this, event,
-        function() {
-          console.info(arguments, this)
-        }
-      ), this.input.element))
   }
 
   destroy () {
@@ -67,9 +34,7 @@ export default class Dialog {
   }
 
   get input () {
-    let editor = this.panel.input
-
-    return editor
+    return this.panel.input
   }
 
   get panel () {
@@ -86,54 +51,33 @@ export default class Dialog {
     return panel
   }
 
-  show () {
-    this.errors = []
-    this.selectedTemplate = null
-    this.panel.show()
-  }
-
-  hide = () =>
-    this.panel.hide()
-
-  getTitle = () =>
-    this.name
-
   set value (text) {
-    this.input.setText(dir(text))
-    this.input.moveToEndOfLine()
-    // input.selectToBeginningOfWord()
+
+    let rel       = basename(text)
+    this.rootPath = dirname(text)
+
+    this.render()
+    this.input.setText(rel)
+    this.input.moveToBeginningOfLine()
+    this.input.selectToEndOfWord()
   }
 
   get value () {
-    return this.input.getText().trim() }
-
-  set error (err) {
-    this.errors.push(err)
-    this.component.setState({ errors: this.errors })
-  }
-
-  get error () {
-    return this.errors }
-
-  get templates () {
-    if (!this._tmpl)
-      this._tmpl = templateManager()
-    return this._tmpl
+    return this.input.getText().trim()
   }
 
   submit () {
     this.errors = []
-    let path = this.value
-
-    if (path && path[0] !== sep)
-      path = join(atom.project.getPaths()[0], path)
+    let path = join(this.rootPath, this.value)
+    // if (path && path[0] !== sep)
+    //   path = join(atom.project.getPaths()[0], path)
 
     try {
 
       // If the given path already exists, do not overwrite it
       // but rather display an error.
       if (existsSync(path)) {
-        this.error = `${path} already exists`
+        this.error = `File ${this.value} already exists (${path})`
         if (!path.endsWith(sep))
           atom.workspace.open(path)
       }
@@ -150,12 +94,15 @@ export default class Dialog {
       // the given input as the path for the item. If a template
       // is selected, apply it to the newly opened pane item.
       else {
+
         let resolver = atom.workspace.open(path)
         if (this.selectedTemplate)
-          resolver.then(editor => this.selectedTemplate
-            ? this.selectedTemplate.apply(editor)
-            : null)
+          resolver.then(editor =>
+            this.selectedTemplate ?
+            this.selectedTemplate.apply(editor) : null)
+
         this.panel.hide()
+        // this.panel.destroy()
       }
     }
 
@@ -164,35 +111,54 @@ export default class Dialog {
     }
   }
 
+  show () {
+    this.errors = []
+    this.selectedTemplate = null
+    this.panel.show()
+  }
+
+  select (item) {
+    this.selectedTemplate = item ? new Template(item) : null
+    this.render()
+  }
+
   insertEditor (host) {
     host.appendChild(this.input.element)
     this.input.element.focus()
   }
 
-  setTemplate (item) {
-    this.selectedTemplate = item ? new Template(item) : null
-    this.render()
+  isSelected = () =>
+    this.selectedTemplate &&
+    this.selectedTemplate.path &&
+    this.selectedTemplate.path.length
+
+  pageUp () {
+    let { templates } = this
+    let index = this.selectedTemplate ? templates.findIndex(item => this.selectedTemplate.path == item.path) : 0
+    if (index > 0)
+      this.select(templates[index - 1])
+  }
+
+  get templates () {
+    return [ getNullTemplateItem(() => !this.isSelected()) ]
+      .concat(getTemplates()
+      .map(item => ({
+        ...item,
+        selected: () => compareTemplates(this.selectedTemplate, item)
+      })))
+  }
+
+  pageDown () {
+    let { templates } = this
+    let index = this.selectedTemplate ? templates.findIndex(item => this.selectedTemplate.path == item.path) : 0
+    if (index > -1 && index < templates.length - 1)
+      this.select(templates[index + 1])
   }
 
   render () {
-    this.item = this.item || document.createElement('div')
 
-    let noTemplate = {
-      name: 'No template',
-      icon: 'icon-x',
-      path: null,
-      type: null,
-      selected: () => !this.selectedTemplate || this.selectedTemplate.path === null,
-    }
+    let { templates } = this
 
-    let templates = this.templates.getAll().map(item => {
-      return {
-        name: basename(item.path),
-        type: extname(item.path),
-        path: item.path,
-        selected: () => this.selectedTemplate && item.path === this.selectedTemplate.path,
-      }
-    })
 
     let buttons   = [
       { text: 'Cancel', action: () => this.hide() },
@@ -200,14 +166,28 @@ export default class Dialog {
 
     this.component = render(
       <DialogContents>
-        <section ref={this.insertEditor}/>
-        <Toolbar buttons={buttons} />
-        <List
-         items={[noTemplate].concat(templates)}
-         select={(item) => this.setTemplate(item)}
-        />
-      </DialogContents>,
+        <section className='padded text-subtle'>
+          <span className='badge'>
+            <code>
+              {this.rootPath
+                .split('/')
+                .splice(1)
+                .map(o => <span className='breadcrumb'>{o}</span>)
+              }
+            </code>
+          </span>
+        </section>
 
+        <section ref={this.insertEditor}/>
+
+        <Toolbar buttons={buttons} />
+
+        <List
+          items={templates}
+          select={(item) => this.select(item)}
+        />
+
+      </DialogContents>,
       this.item )
   }
 }

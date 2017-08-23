@@ -30,16 +30,16 @@ const style = {
   // position: 'relative'
 }
 
-const List = ({ items, select, displayToggleButton=true }) => {
+const List = ({ items, select, actions, displayToggleButton=true }) => {
 
   const toggleButton = displayToggleButton ?
     <button
-     className='btn btn-sm icon icon-chevron-right expanded'
-     onClick={toggleNext}
-     style={{
-       fontSize: '8px',
-       margin: '0 8px 0 0'
-     }}>
+      className='btn btn-sm icon icon-chevron-right expanded'
+      onClick={toggleNext}
+      style={{
+        fontSize: '8px',
+        margin: '0 8px 0 0'
+      }}>
       Use a template
     </button>
     : null
@@ -49,21 +49,31 @@ const List = ({ items, select, displayToggleButton=true }) => {
     {toggleButton}
 
     <ol className='list-group' style={style}>
-
       {items.map(item => {
-        let { name, selected, icon: ico } = item
-        let iconElement = <i className={ico ? `icon icon-${ico}` :icon(item)} />
-        let labelElement = <span className='title'>{item.name}</span>
-        let props = {
-          key:       name,
-          onClick:   () => select(item),
-          className: [ 'list-item', selected() ? ' selected' : '', ].join(' ') }
 
-        return <li {...props}>
-          {iconElement}
-          {labelElement}
-        </li>
+        let { name, selected, icon: ico } = item
+        let selectedClass = typeof selected === 'function' ? (selected() ? ' selected' : '') : selected ? ' selected' : ''
+        let props = {
+          key: name,
+          className: `list-item${selectedClass}`
+        }
+
+          return <li {...props}>
+            <a onClick={() => select(item)}>
+              <i className={ico ? `icon icon-${ico}` : ''}
+                style={{paddingLeft: '1rem'}} />
+
+              <span className='title' style={{paddingRight: '1rem'}}>
+                {item.name}
+              </span>
+
+            </a>
+            
+            {actions ? actions.map((btn, n) => btn(item, n)) : null}
+
+          </li>
       })}
+
     </ol>
   </div>
 }
@@ -73,6 +83,7 @@ const List = ({ items, select, displayToggleButton=true }) => {
 export default List
 List.propTypes = {
   displayToggleButton: prop.bool,
+  actions: prop.array,
   select: prop.func,
   items: prop.array,
 }

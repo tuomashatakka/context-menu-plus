@@ -1,9 +1,10 @@
 'use babel'
 
+import prop from 'prop-types'
 import React, { Component } from 'react'
 import Emitter from 'events'
 import { render } from 'react-dom'
-import { CompositeDisposable, Disposable } from 'atom'
+import { CompositeDisposable } from 'atom'
 
 import { ERROR } from '../constants'
 
@@ -12,27 +13,28 @@ export default class BasePanelComponent extends Component {
 
   static location = 'top'
   static priority = 10000
-  static className = 'placeholder-variables tool-panel file-templates-panel padded'
+  static className = ['placeholder-variables', 'tool-panel', 'file-templates-panel', 'padded']
+
+  static propTypes = {
+    panel: prop.object.isRequired,
+  }
 
   static create (props={}) {
 
-    const panel = atom.workspace.addPanel(
-      this.location,
-      { className:  this.className,
-        priority:   this.priority,
-        item:       document.createElement('i'), // Just a placeholder
-      }
-    )
-    let ComponentClass = this
-    let instance       = <ComponentClass {...props} panel={panel}  />
-    let component      = render(instance, panel.getElement())
-    component.panel    = panel
+    const ComponentClass = this
+    const panelProps = {
+      priority:   this.priority,
+      className:  this.className.join(' '),
+      item:       document.createElement('i'), }
+    const panel = atom.workspace.addPanel(this.location, panelProps)
 
+    let component      = render(<ComponentClass {...props} panel={panel}  />, panel.getElement())
     return component
   }
 
   constructor (props) {
     super(props)
+
     this.emitter        = new Emitter()
     this.subscriptions  = new CompositeDisposable()
 
@@ -56,7 +58,7 @@ export default class BasePanelComponent extends Component {
     // this.emitter.removeAllListeners()
   }
 
-  render () {
+  render () { /* eslint-disable */
     throw new Error(ERROR.PANEL_COMPONENT_RENDER)
     return <div></div>
   }

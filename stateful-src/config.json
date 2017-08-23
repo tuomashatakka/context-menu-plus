@@ -1,0 +1,86 @@
+{
+  "icon": {
+    "order": 1,
+    "title": "Git stat icons",
+    "type": "object",
+    "properties": {
+      "added": {
+        "order": 1,
+        "type": "string",
+        "default": "plus-circled-filled"
+      },
+      "modified": {
+        "order": 2,
+        "type": "string",
+        "default": "hummingbird-filled"
+      },
+      "renamed": {
+        "order": 3,
+        "type": "string",
+        "default": "infinity-filled"
+      },
+      "removed": {
+        "order": 4,
+        "type": "string",
+        "default": "trash-filled"
+      },
+      "ignored": {
+        "order": 5,
+        "type": "string",
+        "default": "no-parking-sign-filled"
+      }
+    }
+  },
+  "color": {
+    "order": 2,
+    "title": "Colors",
+    "type": "object",
+    "properties": {
+      "info": {
+        "order": 1,
+        "type": "color",
+        "default": "#356af2"
+      },
+      "success": {
+        "order": 2,
+        "type": "color",
+        "default": "#9dff80"
+      },
+      "warning": {
+        "order": 3,
+        "type": "color",
+        "default": "#e7ac7d"
+      },
+      "error": {
+        "order": 4,
+        "type": "color",
+        "default": "#f41a68"
+      },
+      "added": {
+        "order": 5,
+        "type": "color",
+        "default": "#80ffca"
+      },
+      "modified": {
+        "order": 6,
+        "type": "color",
+        "default": "#80ffca"
+      },
+      "renamed": {
+        "order": 7,
+        "type": "color",
+        "default": "#e7ac7d"
+      },
+      "removed": {
+        "order": 8,
+        "type": "color",
+        "default": "#f41a68"
+      },
+      "ignored": {
+        "order": 9,
+        "type": "color",
+        "default": "#847c86"
+      }
+    }
+  }
+}

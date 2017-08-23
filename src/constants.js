@@ -1,5 +1,7 @@
 'use babel'
 
+//
+export const IS_VISIBLE = /display:(?:\s*)(block)/ig
 
 // Regular expression for resolving placeolders in a template
 export const placeholderQuery    = /\[\[([^\]]+)\]\]/ig
@@ -12,6 +14,13 @@ export const ADVANCE_KEYS  = ['Enter', 'Tab', ]
 
 // Keys that cancel the current action and close the related UI element(s)
 export const CANCEL_KEYS   = ['Esc', 'Escape', 'Break', ]
+
+// Class name for the highlighted DisplayMarkers
+export const TMPL_VAR_STATIC_NAME = 'template-variable'
+
+// Name for the directory that the file templates are stored into.
+// Located in the atom's storage folder.
+export const TMPL_DIR_NAME = 'file-templates'
 
 
 

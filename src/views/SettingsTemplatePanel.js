@@ -1,71 +1,43 @@
 'use babel'
 
+import prop from 'prop-types'
 import React, { Component } from 'react'
 import { render } from 'react-dom'
-import { CompositeDisposable, Disposable } from 'atom'
+import { CompositeDisposable } from 'atom'
+
+import { getTemplates } from '../templates'
 import SettingsGeneralPanel from './SettingsGeneralPanel'
-import { templateManager } from '../templates'
 import List from './components/ListComponent'
+import Toolbar from './components/ToolbarComponent'
 
 
-const REGEX = { VISIBLE: /display:(?:\s*)(block)/ig }
+const confirm = message => atom.confirm({
+    message,
+    buttons: {
+      'Yes': () => true,
+      'No':  () => false,
+    }
+  })
 
-const attr = function attr (k, v, obj=null) {
-  let object = (obj || this)
-  object.constructor.name !== 'Window'
-}
 
-/**
- * @class SettingsTemplatePanel
- * @extends React.Component
- */
 export default class SettingsTemplatePanel extends Component {
+
+  static propTypes = {
+    toolbar: prop.array,
+    name:    prop.string,
+    icon:    prop.string,
+    host:    prop.object,
+  }
 
   constructor (props) {
     super(props)
     this.name = props.name
     this.icon = props.icon
     this.subscriptions = new CompositeDisposable()
-  }
-
-  toJSON = () =>
-    this.constructor.toJSON(this)
-
-  static toJSON (obj) {
-
-    const element =
-      obj.element =
-      document.createElement('i')
-
-    const {
-      title,
-      icon
-    } = obj
-
-    return {
-      icon,
-      title,
-      element,
-      getIcon: () => icon,
-      getTitle: () => title,
-      getElement: () => element,
-      toggle: () => obj.toggle(),
-      isVisible: () => obj.isVisible(),
-      show: () => obj.show(),
-      hide: () => obj.hide(),
+    this.state = {
+      templates: getTemplates()
     }
   }
-
-  focus = () =>
-    this.props.host.focus()
-
-  isVisible = () =>
-    this.props.host.element
-      .getAttribute('style')
-      .search(REGEX.VISIBLE) > -1
-
-  toggle = () =>
-    this.isVisible() ? this.hide() : this.show()
 
   static create (props={}) {
 
@@ -75,23 +47,19 @@ export default class SettingsTemplatePanel extends Component {
     let component      = render(instance, host.element)
     return new Proxy(
       component, {
-        get: (obj, attr, p) => obj[attr] || host[attr] || null
+        get: (obj, attr) => obj[attr] || host[attr] || null
       })
   }
 
   destroy () {
-    this.element.remove()
     this.props.host.destroy()
     this.subscriptions.dispose()
+    this.element.remove()
   }
 
   render () {
-    let templates = templateManager().getAll().map(template => ({
-      icon: 'file',
-      name: template.path,
-      path: template.path,
-      selected: () => false,
-    }))
+    let { templates } = this.state
+    let { toolbar }   = this.props
 
     return (
 
@@ -101,16 +69,34 @@ export default class SettingsTemplatePanel extends Component {
           {this.name}
         </div>
 
-        {children}
-
-        <h2 className='block'>Template files</h2>
+        <header>
+          <Toolbar buttons={toolbar} />
+          <h3>Template files</h3>
+        </header>
 
         <List
-         items={templates}
-         select={item => atom.workspace.open(item.path)}
-         displayToggleButton={false} />
+          items={templates}
+          displayToggleButton={false}
+          select={item => atom.workspace.open(item.path)}
+          actions={[(item, key) =>
+            <i
+              key={key}
+              className='icon icon-x'
+              onClick={e => {
 
-    </section>
+                e.preventDefault()
+
+                if (!confirm(`Delete ${item.name}?`))
+                  return false
+
+                item.template.remove()
+                this.setState({ templates: getTemplates() })
+                return false
+              }} />
+          ]}
+        />
+
+      </section>
 
     )
   }

@@ -1,15 +1,20 @@
 {
-  "name": "file-templates",
+  "name": "file-browser",
   "main": "./src/index.js",
   "version": "0.0.0",
   "description": "...",
   "keywords": [
-    "linter-ui",
-    "dock",
     "panel",
-    "linter",
     "layout",
-    "filter"
+    "files",
+    "browse",
+    "fs",
+    "filesystem",
+    "explorer",
+    "finder",
+    "browse",
+    "opener",
+    "preview"
   ],
   "repository": "https://github.com/tuomashatakka/linter-ui-docks",
   "license": "MIT",
@@ -32,11 +37,11 @@
   "eslintConfig": {
     "env": {
       "browser": true,
-      "node": true
+      "node":    true
     },
     "parserOptions": {
-      "ecmaVersion": 7,
-      "sourceType": "module",
+      "ecmaVersion":  7,
+      "sourceType":   "module",
       "ecmaFeatures": {
         "jsx": true
       }
@@ -52,7 +57,8 @@
       "window": true,
       "jQuery": true,
       "__dirname": true,
-      "__pathname": true
+      "__pathname": true,
+      "Proxy": true
     },
     "parser": "babel-eslint",
     "plugins": [
@@ -79,18 +85,18 @@
         "never"
       ],
       "flowtype/generic-spacing": [
-        2,
+        1,
         "never"
       ],
       "flowtype/no-primitive-constructor-types": 2,
-      "flowtype/no-weak-types": 1,
+      "flowtype/no-weak-types": 0,
       "flowtype/object-type-delimiter": [
         2,
         "comma"
       ],
       "flowtype/require-parameter-type": 2,
       "flowtype/require-return-type": [
-        2,
+        1,
         "always",
         {
           "annotateUndefined": "never"
@@ -118,7 +124,7 @@
         "^([A-Z][a-z0-9]+)+Type$"
       ],
       "flowtype/union-intersection-spacing": [
-        2,
+        1,
         "always"
       ],
       "flowtype/use-flow-type": 1,
@@ -127,7 +133,7 @@
     "settings": {
       "react": {
         "pragma": "React",
-        "version": "15.3.1"
+        "version": "15.5.4"
       },
       "flowtype": {
         "onlyFilesWithFlowAnnotation": true

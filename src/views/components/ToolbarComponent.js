@@ -10,7 +10,7 @@ const Toolbar = ({ buttons }) => {
      {buttons.map(({ text, action, style, icon: ico }, n) =>
        <button
         key={n}
-        className={`btn btn-` + (style || 'default') + (ico ? ' icon icon-' + icon({icon: ico}) : '')}
+        className={`btn btn-` + (style || 'default') + (ico ? ' icon icon-' + ico : '')}
         onClick={action}>
          {text}
        </button>

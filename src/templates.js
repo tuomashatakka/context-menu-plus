@@ -1,21 +1,55 @@
 'use babel'
 
-import { CompositeDisposable, Directory, File } from 'atom'
-import { join } from 'path'
+import { Directory, File } from 'atom'
+import { join, basename, extname } from 'path'
+import { statSync } from 'fs'
 import Template from './models/Template'
+import { TMPL_DIR_NAME } from './constants'
+
+const ftype = path => statSync(path) ? 'file' : 'file-directory'
+
+const formatTemplate = ({ path }) => ({
+  path,
+  icon:     ftype(path),
+  type:     extname(path)  || 'directory',
+  name:     basename(path) || 'unnamed',
+  template: new Template({ path, icon: ftype(path) }),
+  selected: () => false })
+
+const formatEntries = entries =>
+  entries.map(formatTemplate)
+
+export const getTemplates = (filter=()=>true) =>
+  templateManager().getAll().filter(filter)
+
+export const compareTemplates = (a, b) =>
+  a && b && a.path === b.path
+
+export const getNullTemplateItem = selected => ({
+  name: 'No template',
+  icon: 'x',
+  path: null,
+  type: null,
+  selected: (typeof selected === 'function' ? selected() : selected) || false
+})
 
 export default class TemplateInterface {
 
   constructor () {
-    const dirname = 'file-templates'
-    const path = join(atom.getStorageFolder().getPath(), dirname)
+    this.path = atom
+      .getStorageFolder()
+      .pathForKey(TMPL_DIR_NAME)
+  }
+
+  set path (path) {
     this.directory = new Directory(path)
     this.directory
       .exists()
-      .then((exists) => {
-        if(!exists)
-          this.directory.create()
-      })
+      .then(exists => !exists ? this.directory.create() : null)
+  }
+
+  get path () {
+    return this.directory.getPath()
   }
 
   getTemplate (name) {
@@ -27,7 +61,7 @@ export default class TemplateInterface {
 
   getAll () {
     // TODO: Decorate output
-    return this.directory.getEntriesSync()
+    return formatEntries(this.directory.getEntriesSync())
   }
 
   has (fname) {
@@ -58,6 +92,13 @@ export default class TemplateInterface {
     if (contents)
       file.write(contents)
   }
+
+  toJSON = () =>
+    this.getAll()
+
+  toString = () =>
+    this.getAll().map(entry => entry.name)
+
 }
 
 let templateInterface

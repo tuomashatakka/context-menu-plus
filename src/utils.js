@@ -1,10 +1,13 @@
 'use babel'
 
-import { ADVANCE_KEYS, CANCEL_KEYS } from './constants'
+import { ADVANCE_KEYS, CANCEL_KEYS, IS_VISIBLE } from './constants'
 import { dirname, join, resolve, sep } from 'path'
 import { Disposable } from 'atom'
 // import FileIcons from '../default-file-icons'
 
+
+export const isVisible = el =>
+  el.getAttribute('style').search(IS_VISIBLE) > -1
 
 // Check if the provided key is within the given haystack
 // and return a Promise that is either resolved if the key
