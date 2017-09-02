@@ -1,9 +1,15 @@
 'use babel'
-import React from 'react'
-import { render } from 'react-dom'
+
 import self from 'autobind-decorator'
 
+import FragmentsCollection from './FragmentsCollection'
+
 export default class ContextMenu {
+
+  constructor (...fragments) {
+    this.fragments   = new FragmentsCollection()
+    fragments.forEach(fr => this.fragments.add(fr))
+  }
 
   enable () {
     window.addEventListener('contextmenu', this.handleContextMenuEvent, true)
@@ -17,6 +23,13 @@ export default class ContextMenu {
     this.enabled = false
   }
 
+  @self
+  hideMenu () {
+    if (this.isOpen())
+      this.item.hide()
+  }
+
+  @self
   toggle (state=null) {
     if (state === false || state === null && this.enabled)
       return this.disable()
@@ -43,29 +56,35 @@ export default class ContextMenu {
   }
 
   isOpen () {
-    if (!this.item || !this.item.parentElement)
-      return false
+    if (!this.item || !this.item.parentElement) return false
     let { display, opacity } = getComputedStyle(this.item)
-    return display !== 'none' && opacity > 0
+    return (
+      !this.item.classList.contains('hidden') &&
+      display !== 'none' && opacity > 0)
   }
 
-  displayMenu (entries, properties={}) {
-    console.log("displaying the menu with", entries.length, "entries and the following properties:", properties)
-    let [ x, y ] = properties.clientPosition
-    let { element } = properties
+  @self
+  async displayMenu (items=[], properties={}) {
+    let { element, clientPosition } = properties
+    let fragments = this.fragments.list.sort(sortByPriority)
+    let manager   = this
+    let entries   = items.map(item => Object.assign({}, item, { element }))
+    let detail    = { entries, properties, manager }
+    let [ x, y ]  = clientPosition
+    let view = atom.views.getView(this)
 
-    this.item.entries = entries.map(item => Object.assign({}, item, { element }))
-    this.item.show(x, y)
-
+    await view.updateFragments(fragments, detail)
+    await view.show(x, y)
     // render(
     //   <ContextMenuView entries={entries} />,
     //   this.item)
   }
+}
 
-  @self
-  hideMenu () {
-    console.log("Hiding menu", this.isOpen(), this)
-    if (this.isOpen())
-      this.item.hide()
-  }
+function sortByPriority (a, b) {
+  if (!a.priority || a.priority < b.priority)
+    return 1
+  if (!b.priority || b.priority > a.priority)
+    return -1
+  return 0
 }

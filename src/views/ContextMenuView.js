@@ -1,3 +1,6 @@
+
+const { min } = Math
+
 class ContextMenuView extends HTMLElement {
 
   connectedCallback () {
@@ -6,43 +9,20 @@ class ContextMenuView extends HTMLElement {
     this.hide()
   }
 
-  dispatch (item, origin) {
-    let event  = new CustomEvent(item.command)
-    let detail = item.commandDetail
-    item.element.dispatchEvent(event, { detail })
-    origin.stopImmediatePropagation()
-    this.hide()
-  }
-
-  set entries (items=[]) {
-    console.warn("Setting entries for ContextMenuView", items.length)
-    let old  = this.querySelector('ul')
-    let list = document.createElement('ul')
-
-    for (let item of items) {
-      let el = document.createElement('li')
-      el.textContent = item.label
-      if (item.submenu)
-        el.setAttribute('class', 'has-children')
-      if (item.command)
-        el.addEventListener('click', this.dispatch.bind(this, item), true)
-      list.appendChild(el)
+  get gutter () {
+    if (!this._gutter) {
+      let gutter = parseFloat(getComputedStyle(this).marginBottom)
+      if (isNaN(gutter))
+        this._gutter = 0
+      else
+        this._gutter = gutter
     }
-
-    if (old)
-      old.remove()
-
-    this.appendChild(list)
+    return this._gutter
   }
 
-  hide () {
-    this.classList.add('hidden')
-    this.classList.remove('open')
-  }
-
-  getPosition () {
-    let { top: y, left: x } = this.getBoundingClientRect()
-    return { x, y }
+  get dimensions () {
+    let { width, height, top: y, left: x } = this.getBoundingClientRect()
+    return { width, height, x, y }
   }
 
   setPosition (x, y) {
@@ -51,27 +31,51 @@ class ContextMenuView extends HTMLElement {
     if (num(y)) this.style.setProperty('top',  y.toString() + 'px')
   }
 
-  resolveMaximumHeight () {
-    let gutter = parseFloat(getComputedStyle(this).marginBottom)
-    let { y }  = this.getPosition()
-    gutter     = isNaN(gutter) ? 0 : gutter
-    this.setHeight(window.innerHeight - y - gutter)
+  resolvePosition (mx, my) {
+    let { innerWidth: vw, innerHeight: vh } = window
+    let { width, height, x, y } = this.dimensions
+
+    x = min(vw - width,  mx || x) - this.gutter
+    y = min(vh - height, my || y) - this.gutter
+
+    let maxHeight = vh - y - this.gutter
+    this.setMaxHeight(maxHeight)
+    this.setPosition(x, y)
   }
 
-  setHeight (h) {
+  setMaxHeight (h) {
     this.style.setProperty('--max-height', h + 'px')
   }
 
-  show (x, y) {
-    this.setPosition(x, y)
-    this.resolveMaximumHeight()
+  async updateFragments (fragments, detail={}) {
+    for (let fragment of fragments) {
 
+      // fragment.update(detail)
+      let view = atom.views.getView(fragment)
+
+      if (!view)
+        throw new ReferenceError(`Invalid fragment in ContextMenuManager:`, fragment)
+
+      let element = view.render(fragment, detail)
+      element.classList.add('section')
+      this.appendChild(view)
+    }
+  }
+
+  async show (x, y) {
+    this.resolvePosition(x, y)
     this.classList.remove('hidden')
     this.classList.add('open')
+  }
+
+  hide () {
+    this.classList.add('hidden')
+    this.classList.remove('open')
   }
 }
 
 customElements.define('atom-context-menu', ContextMenuView)
+
 module.exports = (model) => {
   let view = document.createElement('atom-context-menu')
   view.model = model
