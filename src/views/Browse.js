@@ -43,6 +43,7 @@ export default class Browse extends Component {
 
   @self
   selectItem (item=null, opts={}) {
+    console.warn('selectItem.opts', opts)
     let selected = []
     if (opts.inclusive && this.state.selected)
       selected.push(...this.state.selected)
@@ -106,8 +107,8 @@ export default class Browse extends Component {
             files={this.props.currentDirectory.files}
             directories={this.props.currentDirectory.directories}
             isSelected={this.isItemSelected}
-            onSelect={this.selectItem}
-            openPath={this.openPath}
+            onFileSelect={this.selectItem}
+            onDirectorySelect={this.openPath}
             options={this.state.options}
           />
         </div>
@@ -150,6 +151,7 @@ export default class Browse extends Component {
 
   onDidSubmit = (callback) => this.emitter.on('did-submit', callback)
   onDidCancel = (callback) => this.emitter.on('did-cancel', callback)
+  onDidClose  = (callback) => this.emitter.on('did-close',  callback)
   onDidClear  = (callback) => this.emitter.on('did-clear',  callback)
 
 }

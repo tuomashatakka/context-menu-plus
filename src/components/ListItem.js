@@ -17,7 +17,7 @@ const iconClass = (path) => {
 const ListItem = ({ onClick, path, state }) =>
   <li
     className={'list-item' + (state ? ' ' + state : '')}
-    onClick={() => onClick(path)}>
+    onClick={(ev) => onClick(path, parseOptions(ev))}>
     <span className={iconClass(path)} />
     <span className='title'>{basename(path)} </span>
     <small className='path text-subtle'>{path} </small>
@@ -32,3 +32,9 @@ ListItem.propTypes = {
 }
 
 export default ListItem
+
+function parseOptions (ev) {
+  return {
+    inclusive: ev.metaKey || ev.shiftKey
+  }
+}

@@ -13,24 +13,29 @@ export default class Explorer {
   constructor (path='.') {
     this.currentDirectory = new Directory(path)
     this.emitter = new Emitter()
-    this.open()
   }
 
   getRequestPromise = () => new Promise((resolve, reject) => {
-    this.emitter.one('did-submit', (items) => resolve(items))
-    this.emitter.one('did-close',  () => reject())
+    this.emitter.once('did-submit', (items) => resolve(items))
+    this.emitter.once('did-throw-error',  (err) => reject(err))
   })
 
   async requestFile (initialPath) {
-        if (initialPath)
-      this.currentDirectory.setPath(initialPath)
-    else
-      this.currentDirectory.resetPath()
 
-    this.open()
+    try {
+      if (initialPath)
+        this.currentDirectory.setPath(initialPath)
+      else
+        this.currentDirectory.resetPath()
+      this.open()
+      this.emitter.emit('did-request-file')
+      return await this.getRequestPromise()
+    }
 
-    this.emitter.emit('did-request-file')
-    return await this.getRequestPromise()
+    catch (e) {
+      this.emitter.emit('will-throw-error', e)
+      throw new Error(e)
+    }
   }
 
   async requestDirectory () {
@@ -44,10 +49,13 @@ export default class Explorer {
 
   @self
   open () {
-    let el = createElement()
-    this.render(el)
-    this.element = el
-    this.emitter.emit('did-open')
+    if (!this.element) {
+      let el = createElement()
+      this.render(el)
+      this.element = el
+    }
+    this.emitter.emit('did-open', this.element)
+    return this.element
   }
 
   @self
@@ -58,22 +66,23 @@ export default class Explorer {
 
   @self
   close () {
-    this.element.remove()
-    this.emitter.emit('did-close')
+    // if (this.element)
+    //   this.element.remove()
+    this.emitter.emit('did-close', this.element)
   }
 
   render (node) {
-
     let component = render(
-      <BrowseView
-        currentDirectory={this.currentDirectory}
-      />,
-      node
-    )
-    component.onDidSubmit(this.submit.bind(this))
-    component.onDidCancel(this.close.bind(this))
+      <BrowseView currentDirectory={this.currentDirectory} />,
+      node)
+    component.onDidSubmit(this.submit)
+    component.onDidClose(this.close)
     component.onDidClear(this.submit.bind(this, []))
   }
+
+  onDidOpen = (callback) => this.emitter.on('did-open', callback)
+  onDidClose = (callback) => this.emitter.on('did-close', callback)
+  onDidSubmit = (callback) => this.emitter.on('did-submit', callback)
 }
 
 function createElement () {
