@@ -1,7 +1,6 @@
 
 .filepath-prompt {
-  min-width: 60vw
-}
+  min-width: 60vw }
 
 .file-templates-list a {
   display: block }
@@ -36,11 +35,9 @@
       display:       inline-block;
       width:         2em !important }}}
 
-
 .placeholder-variables {
   min-height:   12em;
   min-width:    12em }
-
 
 .template-variable {
   @import "ui-variables";
@@ -76,3 +73,46 @@
   margin:     0 0.8em;
   height:     1.5em;
   width:      1px }
+
+.file-browser-container {
+}
+
+.file-explorer .close-icon {
+  border-radius:    50%;
+  position:         absolute;
+  display:          block;
+  height:           3em;
+  width:            3em;
+  right:            0;
+  top:              0;
+  color:            @text-color;
+  background-color: @button-background-color;
+
+  &::before {
+    display: block;
+    line-height: 3em;
+    text-align: center;
+    width: inherit;
+  }
+}
+
+.file-explorer .directory-view {
+  &.grid {
+
+    .list-group li {
+      flex: 0 1 33%;
+      width: auto;
+      overflow: hidden;
+    }
+
+    .list-group {
+      display: flex;
+      flex-flow: row wrap;
+    }
+  }
+}
+
+
+
+.file-explorer .breadcrumbs {
+  display: flex }
