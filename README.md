@@ -1,24 +1,83 @@
-# File Templates
+# Context Menu Plus
+
+#### Modifiable context-menu for atom
+
+## Highlights
+
+  - Fully customizable with CSS
+  - Service for adding custom views/widgets/applets to the context menu
+  -
 
 
-*Fasten your workflow and get rid of the numbing boilerplate typing*
+## Custom views
 
-File Templates package allows you to create any number of templates to use in creating new files. 
+### init.js
 
-### Template files
+TODO
 
-Templates are just ordinary files, with some additional metadata saved into the dedicated IDB. 
-This approach allows a transparent inspection of files. You may for example allow all files in a certain directory to
-be uzed as templates by simply copying or moving them into the File Templates' template directory. 
+### Service API
 
-etc etc
+To provide a custom context menu view fragment for a package, the package must ... TODO
 
-### Variables
+<table>
+  <thead>
+    <tr>
+      <th>Command</th>
+      <th>Description</th>
+      <th>Arguments</th>
+    </tr>
+  </thead>
 
-#### Environmental variables
+  <tbody>
+    <tr>
+      <td>Provider.addFragment (item: Element |string, priority: number?)</td>
+      <td>Add a section to the context menu</td>
+      <td>
+        <dl>
+          <dd>item (required)</dd>
+          <dt>A view for the fragment, or a string containing HTML content for the fragment</dt>
 
-#### Project constants
+          <dd>priority (optional)</dd>
+          <dt>
+            The ordering of context menu's fragments is resolved by fragments' priority. Items
+            with the highest priority are kept topmost
+          </dt>
+        </dl>
+      </td>
 
-#### Dynamically populated variables
+    </tr>
 
-to be concluded. 
+    <tr>
+      <td>Provider.removeFragment (itemOrKey: Element | number)</td>
+      <td>Remove a section from the context menu</td>
+      <td>
+
+        <dl>
+          <dd>itemOrKey (required)</dd>
+          <dt>Identifier for the fragment that should be removed</dt>
+        </dl>
+
+      </td>
+
+    </tr>
+
+    <tr>
+      <td>clearFragments</td>
+      <td>clearFragments</td>
+      <td>clearFragments</td>
+    </tr>
+
+    <tr>
+      <td>hideMenuItems (...items: Array<Object>)</td>
+      <td>Hide the given menu items from the context menu</td>
+      <td>A list of menu items to be removed from the menu</td>
+    </tr>
+
+    <tr>
+      <td>showMenuItems (...items: Array<Object>)</td>
+      <td>Show the given menu items from the context menu</td>
+      <td>A list of menu items to be added to the menu</td>
+    </tr>
+
+  </tbody>
+</table>

@@ -1,0 +1,8 @@
+{
+  "contextMenuEnabled": {
+    "title": "Enable context menu plus",
+    "description": "Uncheck to enable the native context menu",
+    "type": "boolean",
+    "default": true
+  }
+}
