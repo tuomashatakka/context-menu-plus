@@ -15,27 +15,24 @@ export default class ContextMenuFragment {
     this.properties = properties
   }
 
-  update (/*  detail={}  */) {
-    // TODO
+  update (detail={}) {
+    this.detail = detail
   }
 
   render (/*  detail={}  */) {
-    let element
+    throw new ReferenceError(`Subclasses of ContextMenuFragment must implement a render method that returns a String or a HTMLElement`)
+  }
 
-    if (!this.item)
-      throw new TypeError(`Trying to render a fragment with no item`)
+  toJSON () {
+    let item = this.item
+    if (!item)
+      try { item = this.render() }
+      catch (e) { item = null }
 
-    if (this.item.render)
-      element = this.item.render(this)
+    let data = { item, type: this.constructor.name }
+    for (let [ key, value ] of this.properties.entries())
+      data[key] = value
 
-    else if (typeof this.item === 'string') {
-      element = document.create('section')
-      element.innerHTML = this.item
-    }
-
-    if (!(this.item instanceof HTMLElement))
-      throw new TypeError(`Feagment.render return value should be an instance of HTMLElement. Got ${element.constructor ? element.constructor.name : 'undefined'}`)
-
-    return element
+    return data
   }
 }

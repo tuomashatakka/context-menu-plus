@@ -13,7 +13,9 @@ atom-context-menu {
   --max-width:         420px;
   --min-height:        240px;
   --max-height:        60vh;
+  --border-radius:     4px;
   --border-width:      0;
+  --border-color:      lighten(@overlay-background-color, 7%);
   --separator-color:   lighten(@overlay-background-color, 10%);
   --background-color:  lighten(@overlay-background-color, 3%);
   --font-size:         0.82em;
@@ -27,22 +29,32 @@ atom-context-menu {
   box-shadow:          @shadow;
   padding:             @component-padding / 8;
   display:             flex;
-  margin:             -1em 0 ~"calc(1em + var(--margin))";
-  border:              1px solid lighten(@overlay-border-color, 10%);
-  border-radius:       4px;
+  margin:              0 0 var(--margin) 1em;
+  border:              1px solid var(--border-color);
+  border-radius:       0 var(--border-radius) var(--border-radius);
   transition-duration: 200ms;
   transition-property: max-height, opacity, padding, margin, border-width;
+  flex-direction:      column;
+  overflow:            auto;
 
-  context-fragment::-webkit-scrollbar {
+  context-fragment {
+    flex:           1 1;
+    height:         auto;
+    font-size:      var(--font-size);
+    flex-basis:     var(--priority, 1);
+    flex-direction: column }
+
+  &::-webkit-scrollbar {
     -webkit-appearance: none;
     width:  @scrollbar-size;
     height: @scrollbar-size }
 
-  context-fragment::-webkit-scrollbar-track,
-  context-fragment::-webkit-scrollbar-corner {
-    background: @scrollbar-track-color }
+  &::-webkit-scrollbar-track,
+  &::-webkit-scrollbar-corner {
+    // background: @scrollbar-track-color;
+    background: transparent }
 
-  context-fragment::-webkit-scrollbar-thumb {
+  &::-webkit-scrollbar-thumb {
     border: none;
     border-radius: @scrollbar-size / 2;
     background: @scrollbar-color;
@@ -51,11 +63,6 @@ atom-context-menu {
     &:active,
     &:hover {
       background: @scrollbar-color-active }}
-
-  context-fragment {
-    flex: 1 0;
-    font-size: var(--font-size);
-    overflow: auto }
 
   .section {
     padding: @component-padding / 1.5 }
@@ -104,6 +111,7 @@ atom-context-menu {
     overflow: hidden;
     margin:              0;
     opacity:             0;
+    min-height:          0;
     max-height:          0;
     padding-top:         0;
     padding-bottom:      0;
@@ -113,15 +121,24 @@ atom-context-menu {
 
 
 .arrow () {
+  &::after,
   &::before {
     content:      '';
     border-width: 0 ~"calc(0.8 * var(--size))" var(--size) 0;
-    left:         ~"calc(-0.8 * var(--size))";
-    top:          ~"calc(-1 * var(--border-width))";
+    left:         ~"calc(-0.8 * var(--size) + 2.5px)";
+    top:          0;
+    // top:          ~"calc(-1 * var(--border-width))";
     display:      block;
     position:     absolute;
     box-sizing:   content-box;
-    border-color: transparent var(--background-color);
+    border-color: transparent var(--border-color);
     border-style: solid;
+  }
+  &::after {
+    border-color: transparent var(--background-color);
+  }
+  &::before {
+    margin: -1px 0 0 -1.5px;
+
   }
 }

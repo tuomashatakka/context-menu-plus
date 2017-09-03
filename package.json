@@ -43,7 +43,12 @@
     "flow-typed": "^2.1.5",
     "flowtype": "^2.0.0"
   },
-  "providedServices": {},
+  "providedServices": {
+    "context-menu": {
+      "description": "Display a custom view in context menu",
+      "versions": { "1.0.0": "provideContextMenu" }
+    }
+  },
   "eslintConfig": {
     "env": {
       "browser": true,

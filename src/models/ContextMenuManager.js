@@ -44,6 +44,9 @@ export default class ContextMenu {
     let entries = atom.contextMenu.templateForEvent(ev)
     let { clientX: x, clientY: y, target: element } = event
 
+    if (!entries.length)
+      return
+
     // Display the custom menu
     this.displayMenu (entries, { element, clientPosition: [ x, y ] })
 
@@ -66,25 +69,17 @@ export default class ContextMenu {
   @self
   async displayMenu (items=[], properties={}) {
     let { element, clientPosition } = properties
-    let fragments = this.fragments.list.sort(sortByPriority)
     let manager   = this
     let entries   = items.map(item => Object.assign({}, item, { element }))
-    let detail    = { entries, properties, manager }
+    let detail    = { ...properties, entries, manager }
     let [ x, y ]  = clientPosition
-    let view = atom.views.getView(this)
+    let view      = atom.views.getView(this)
+    let children  = await this.fragments.update(detail)
 
-    await view.updateFragments(fragments, detail)
-    await view.show(x, y)
+    view.append(...children)
+    view.show(x, y)
     // render(
     //   <ContextMenuView entries={entries} />,
     //   this.item)
   }
-}
-
-function sortByPriority (a, b) {
-  if (!a.priority || a.priority < b.priority)
-    return 1
-  if (!b.priority || b.priority > a.priority)
-    return -1
-  return 0
 }

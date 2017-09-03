@@ -5,7 +5,7 @@ import { CompositeDisposable } from 'atom'
 import * as model from './models'
 import createMenuView from './views/ContextMenuView'
 import createFragmentView from './views/FragmentView'
-import MenuFragment from './models/MenuFragment'
+import SF from './models/StaticFragment'
 
 let menu
 
@@ -27,19 +27,22 @@ export const config = require('../config.json')
 
 export function activate () {
 
+  let menuFragment = new model.MenuFragment()
+  let testFragment = new SF()
   subscriptions = new CompositeDisposable()
-  let menuFragment = new MenuFragment()
-  menu = new model.ContextMenu(menuFragment)
+  menu = new model.ContextMenu()
 
   subscriptions.add(
     cmd('toggle'),
     cmd('enable'),
     cmd('disable'),
-    atom.keymaps.add(ns, { 'ctrl-alt-*': command.toggle }),
+    atom.config.observe(`${pack}.contextMenuEnabled`, onConfigChange),
     atom.views.addViewProvider(model.ContextMenu, model => createMenuView(model)),
     atom.views.addViewProvider(model.Fragment, model => createFragmentView(model)),
-    atom.config.observe(`${pack}.contextMenuEnabled`, onConfigChange)
+    atom.keymaps.add(ns, { 'ctrl-alt-*': command.toggle })
   )
+
+  menu.fragments.add(menuFragment, testFragment)
   menu.enable()
 }
 
@@ -53,4 +56,11 @@ function onConfigChange (config) {
 export function deactivate () {
   subscriptions.dispose()
   menu.disable()
+}
+
+export function provideContextMenu () {
+  return ({
+    Fragment:    model.Fragment,
+    addFragment: (properties: FragmentProperties) => menu.fragments.add(new model.Fragment(properties))
+  })
 }

@@ -154,6 +154,7 @@ concat-map	.\package-lock.json	/^        "concat-map": "0.0.1"$/;"	f
 concat-map	.\package-lock.json	/^    "concat-map": {$/;"	f
 concat-stream	.\package-lock.json	/^        "concat-stream": "1.6.0",$/;"	f
 concat-stream	.\package-lock.json	/^    "concat-stream": {$/;"	f
+context-menu	.\package.json	/^    "context-menu": {$/;"	f
 contextMenuEnabled	.\config.json	/^  "contextMenuEnabled": {$/;"	f
 core-js	.\package-lock.json	/^        "core-js": "1.2.7",$/;"	f
 core-js	.\package-lock.json	/^        "core-js": "2.5.1",$/;"	f
@@ -189,6 +190,7 @@ dependencies	.\package-lock.json	/^      "dependencies": {$/;"	f
 dependencies	.\package-lock.json	/^  "dependencies": {$/;"	f
 dependencies	.\package.json	/^  "dependencies": {$/;"	f
 description	.\config.json	/^    "description": "Uncheck to enable the native context menu",$/;"	f
+description	.\package.json	/^      "description": "Display a custom view in context menu",$/;"	f
 description	.\package.json	/^  "description": "...",$/;"	f
 dev	.\package-lock.json	/^          "dev": true$/;"	f
 dev	.\package-lock.json	/^          "dev": true,$/;"	f
@@ -874,7 +876,7 @@ promise	.\package-lock.json	/^    "promise": {$/;"	f
 prop-types	.\package-lock.json	/^        "prop-types": "15.5.10"$/;"	f
 prop-types	.\package-lock.json	/^    "prop-types": {$/;"	f
 prop-types	.\package.json	/^    "prop-types": "^15.5.10",$/;"	f
-providedServices	.\package.json	/^  "providedServices": {},$/;"	f
+providedServices	.\package.json	/^  "providedServices": {$/;"	f
 pseudomap	.\package-lock.json	/^        "pseudomap": "1.0.2",$/;"	f
 pseudomap	.\package-lock.json	/^    "pseudomap": {$/;"	f
 pullstream	.\package-lock.json	/^        "pullstream": "0.4.1",$/;"	f
@@ -1272,7 +1274,6 @@ slice-stream	.\package-lock.json	/^        "slice-stream": "1.0.0"$/;"	f
 slice-stream	.\package-lock.json	/^    "slice-stream": {$/;"	f
 sntp	.\package-lock.json	/^        "sntp": "1.0.9"$/;"	f
 sntp	.\package-lock.json	/^    "sntp": {$/;"	f
-sortByPriority	.\src\models\ContextMenuManager.js	/^function sortByPriority (a, b) {$/;"	f
 sourceType	.\package.json	/^      "sourceType": "module",$/;"	f
 spdx-correct	.\package-lock.json	/^        "spdx-correct": "1.0.2",$/;"	f
 spdx-correct	.\package-lock.json	/^    "spdx-correct": {$/;"	f
@@ -1590,6 +1591,7 @@ version	.\package-lock.json	/^      "version": "github:yields\/merge#2f357cb501c
 version	.\package-lock.json	/^  "version": "0.0.0",$/;"	f
 version	.\package.json	/^        "version": "15.5.4"$/;"	f
 version	.\package.json	/^  "version": "0.0.0",$/;"	f
+versions	.\package.json	/^      "versions": { "1.0.0": "provideContextMenu" }$/;"	f
 viewport	.\package-lock.json	/^        "viewport": "2.0.1"$/;"	f
 viewport	.\package-lock.json	/^    "viewport": {$/;"	f
 whatwg-fetch	.\package-lock.json	/^        "whatwg-fetch": "2.0.3"$/;"	f

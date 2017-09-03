@@ -5,6 +5,7 @@
 [libs]
 conf/atom.type.js
 conf/atom.jasmine.type.js
+conf/fragment.type.js
 
 [lints]
 
