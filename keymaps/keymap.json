@@ -1,6 +1,0 @@
-{
-  "atom-workspace": {
-    "ctrl-shift-E": "application:open-file-browser",
-    "ctrl-N": "application:new-directory"
-  }
-}

@@ -32,7 +32,6 @@ atom-context-menu {
   border-radius:       4px;
   transition-duration: 200ms;
   transition-property: max-height, opacity, padding, margin, border-width;
-  flex-flow: row nowrap;
 
   context-fragment::-webkit-scrollbar {
     -webkit-appearance: none;
@@ -52,17 +51,6 @@ atom-context-menu {
     &:active,
     &:hover {
       background: @scrollbar-color-active }}
-
-  &.hidden {
-    display:  block !important;
-    overflow: hidden;
-    margin:              0;
-    opacity:             0;
-    max-height:          0;
-    padding-top:         0;
-    padding-bottom:      0;
-    border-top-width:    0;
-    border-bottom-width: 0 }
 
   context-fragment {
     flex: 1 0;
@@ -110,6 +98,17 @@ atom-context-menu {
     width: @component-padding;
     text-align: center;
   }
+
+  &.hidden {
+    display:  block !important;
+    overflow: hidden;
+    margin:              0;
+    opacity:             0;
+    max-height:          0;
+    padding-top:         0;
+    padding-bottom:      0;
+    border-top-width:    0;
+    border-bottom-width: 0 }
 }
 
 

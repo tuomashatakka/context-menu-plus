@@ -1,4 +1,6 @@
 'use babel'
+//@flow
+
 import { CompositeDisposable } from 'atom'
 import * as model from './models'
 import createMenuView from './views/ContextMenuView'

@@ -15,11 +15,11 @@ export default class ContextMenuFragment {
     this.properties = properties
   }
 
-  update (detail={}) {
+  update (/*  detail={}  */) {
     // TODO
   }
 
-  render (detail={}) {
+  render (/*  detail={}  */) {
     let element
 
     if (!this.item)
