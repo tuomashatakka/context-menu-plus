@@ -4,5 +4,12 @@
     "description": "Uncheck to enable the native context menu",
     "type": "boolean",
     "default": true
+  },
+  "spacing": {
+    "title": "Item spacing",
+    "description": "Spacing for the context menu items",
+    "default": 2,
+    "type": "number",
+    "enum": [ 1, 1.33, 1.67, 2, 2.33, 2.67, 3 ]
   }
 }

@@ -2,6 +2,7 @@
 //@flow
 
 import { CompositeDisposable } from 'atom'
+import settngs from './config'
 import * as model from './models'
 import createMenuView from './views/ContextMenuView'
 import createFragmentView from './views/FragmentView'
@@ -36,6 +37,7 @@ export function activate () {
     cmd('toggle'),
     cmd('enable'),
     cmd('disable'),
+    settngs.observe(settngs.update),
     atom.config.observe(`${pack}.contextMenuEnabled`, onConfigChange),
     atom.views.addViewProvider(model.ContextMenu, model => createMenuView(model)),
     atom.views.addViewProvider(model.Fragment, model => createFragmentView(model)),
