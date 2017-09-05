@@ -17,11 +17,20 @@ class ContextMenuView extends HTMLElement {
     this.hide()
   }
 
+  get contentElement () {
+    return this.firstElementChild || this.appendChild(document.createElement('div'))
+  }
+
   async show (x, y) {
     this.classList.add('open')
     this.classList.remove('hidden')
     this.resolvePosition(x, y)
     this.compensateOverflow()
+  }
+
+
+  clear () {
+    this.contentElement.innerHTML = ''
   }
 
   hide () {

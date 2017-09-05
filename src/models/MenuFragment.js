@@ -9,6 +9,7 @@ function dispatch (item, origin) {
   origin.stopImmediatePropagation()
 }
 
+
 export default class MenuFragment extends Fragment {
 
   constructor (props) {

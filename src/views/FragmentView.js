@@ -1,6 +1,10 @@
 class FragmentElement extends HTMLElement {
   connectedCallback () {
   }
+
+  clear () {
+    this.innerHTML = ''
+  }
 }
 
 customElements.define('context-fragment', FragmentElement)

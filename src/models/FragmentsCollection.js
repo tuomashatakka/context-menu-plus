@@ -44,7 +44,7 @@ export default class FragmentsCollection {
         throw new ReferenceError(`Invalid element returned from fragment.render. Expected any of String, HTMLElement or a React component; got`, element.constructor)
 
       element.classList.add('section')
-      view.innerHTML = ''
+      view.clear()
       view.append(element)
       children.push(view)
     }

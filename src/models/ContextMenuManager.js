@@ -76,7 +76,7 @@ export default class ContextMenu {
     let view      = atom.views.getView(this)
     let children  = await this.fragments.update(detail)
 
-    view.append(...children)
+    view.contentElement.append(...children)
     view.show(x, y)
     // render(
     //   <ContextMenuView entries={entries} />,

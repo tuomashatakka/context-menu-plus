@@ -37,8 +37,13 @@ atom-context-menu {
   border-radius:       0 var(--border-radius) var(--border-radius);
   transition-duration: 200ms;
   transition-property: max-height, opacity, padding, margin, border-width;
-  flex-direction:      column;
-  overflow:            auto;
+
+  > div {
+    flex-direction:      column;
+    overflow:            auto;
+    overflow-x:            hidden;
+    display:             flex;
+  }
 
   context-fragment {
     flex:           1 1;
@@ -47,17 +52,17 @@ atom-context-menu {
     flex-basis:     var(--priority, 1);
     flex-direction: column }
 
-  &::-webkit-scrollbar {
+  ::-webkit-scrollbar {
     -webkit-appearance: none;
     width:  @scrollbar-size;
     height: @scrollbar-size }
 
-  &::-webkit-scrollbar-track,
-  &::-webkit-scrollbar-corner {
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
     // background: @scrollbar-track-color;
     background: transparent }
 
-  &::-webkit-scrollbar-thumb {
+  ::-webkit-scrollbar-thumb {
     border: none;
     border-radius: @scrollbar-size / 2;
     background: @scrollbar-color;
