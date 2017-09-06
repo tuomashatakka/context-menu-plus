@@ -2,49 +2,67 @@
 @import "octicons";
 
 
-@shadow: 1px 2px 12px fade(black, 12%);
-@scrollbar-size: 8px;
+@shadow:                 1px 2px 12px fade(black, 12%);
+@scrollbar-size:         8px;
+@scrollbar-color:        @text-color-subtle;
+@scrollbar-color-active: @text-color;
+@scrollbar-track-color:  transparent;
 
 atom-context-menu {
+
+  // Draw the caret in the menu's top-left corner
   .arrow();
+
+  // Variable assignments
   --size:              @disclosure-arrow-size;
   --margin:            1.5em;
   --min-width:         220px;
   --max-width:         420px;
   --min-height:        140px;
   --max-height:        60vh;
-  --border-radius:     4px;
+
+  --font-size:         0.82em;
   --border-width:      0;
+  --border-radius:     @component-border-radius;
+
   --border-color:      lighten(@overlay-background-color, 7%);
   --separator-color:   lighten(@overlay-background-color, 10%);
   --background-color:  lighten(@overlay-background-color, 3%);
-  --font-size:         0.82em;
 
   --spacing-half:    ~"calc(var(--spacing) / 2)";
   --spacing-quarter: ~"calc(var(--spacing) / 4)";
 
-  height:              var(--height, --max-height);
-  min-width:           var(--min-width);
-  min-height:          var(--min-height);
-  max-width:           var(--max-width);
-  max-height:          var(--max-height);
-  background:          var(--background-color);
-  box-shadow:          @shadow;
-  padding:             @component-padding / 8;
-  display:             flex;
-  margin:              0 0 var(--margin) 1em;
-  border:              1px solid var(--border-color);
-  border-radius:       0 var(--border-radius) var(--border-radius);
+  height:     var(--height, --max-height);
+  min-width:  var(--min-width);
+  max-width:  var(--max-width);
+  min-height: var(--min-height);
+  max-height: var(--max-height);
+  background: var(--background-color);
+
+  border-style:  solid;
+  border-width:  var(--border-width);
+  border-color:  var(--border-color);
+  border-radius: 0 var(--border-radius) var(--border-radius);
+
   transition-duration: 200ms;
   transition-property: max-height, opacity, padding, margin, border-width;
 
-  > div {
-    flex-direction:      column;
-    overflow:            auto;
-    overflow-x:            hidden;
-    display:             flex;
-  }
+  display:    flex;
+  margin:     0 0 var(--margin) 1em;
+  padding:    @component-padding / 8;
+  box-shadow: @shadow;
 
+  // Container wrapper to enable the scrollbar &
+  // hide the horizontal overflows
+  > div {
+    flex-direction: column;
+    overflow:       auto;
+    overflow-x:     hidden;
+    display:        flex;
+    flex:           1 0 }
+
+  // Context fragment represents a single section
+  // in the contextual menu
   context-fragment {
     flex:           1 1;
     height:         auto;
@@ -52,68 +70,47 @@ atom-context-menu {
     flex-basis:     var(--priority, 1);
     flex-direction: column }
 
-  ::-webkit-scrollbar {
-    -webkit-appearance: none;
-    width:  @scrollbar-size;
-    height: @scrollbar-size }
-
-  ::-webkit-scrollbar-track,
-  ::-webkit-scrollbar-corner {
-    // background: @scrollbar-track-color;
-    background: transparent }
-
-  ::-webkit-scrollbar-thumb {
-    border: none;
-    border-radius: @scrollbar-size / 2;
-    background: @scrollbar-color;
-    background-clip: content-box;
-
-    &:active,
-    &:hover {
-      background: @scrollbar-color-active }}
-
   .section {
     padding: @component-padding / 1.5 }
 
   ul {
     list-style: none;
     margin:     0;
-    padding:    0 @component-padding 0 0 }
+    padding:    0 @component-padding }
 
   li {
-    justify-content: space-between;
-    border-radius:   @component-border-radius;
-    transition:     .2s background-color, .2s color;
-    line-height:     var(--spacing);
     display:         flex;
-    padding:         0 var(--spacing-quarter);
     margin:          0 0 1px 0;
-  }
+    padding:         0 var(--spacing-quarter);
+    line-height:     var(--spacing);
+    border-radius:   @component-border-radius;
+    justify-content: space-between;
+    transition:
+      .2s background-color,
+      .2s color }
 
   li:empty {
     margin: var(--spacing-half) 0;
-    border-bottom: 1px solid var(--separator-color);
-  }
+    border-bottom: 1px solid var(--separator-color) }
 
   li:hover {
-    transition-duration: .15s;
+    cursor:     pointer;
+    color:      @text-color-highlight;
     background: @background-color-highlight;
-    cursor: pointer;
-    color: @text-color-highlight;
-  }
+    transition-duration: .15s }
 
   li.has-children {
-    .octicon('tag');
-    flex-direction: row-reverse;
-  }
+    .octicon('arrow-right');
+    flex-direction: row-reverse }
 
   li.has-children::before {
-    display: inline-block;
-    margin-right: -@component-padding;
-    width: @component-padding;
-    text-align: center;
-  }
+    width:          @component-padding;
+    padding:        0 @component-padding;
+    text-align:     center;
+    display:        inline-block }
 
+  // Overwrite the default display: none
+  // to allow custom animations
   &.hidden {
     display:  block !important;
     overflow: hidden;
@@ -125,6 +122,27 @@ atom-context-menu {
     padding-bottom:      0;
     border-top-width:    0;
     border-bottom-width: 0 }
+
+  // Subitems' scrollbar styles
+  ::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width:  @scrollbar-size;
+    height: @scrollbar-size }
+
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: @scrollbar-track-color }
+    // background: transparent }
+
+  ::-webkit-scrollbar-thumb {
+    border: none;
+    border-radius: @scrollbar-size / 2;
+    background: @scrollbar-color;
+    background-clip: content-box;
+
+    &:active,
+    &:hover {
+      background: @scrollbar-color-active }}
 }
 
 
@@ -132,21 +150,20 @@ atom-context-menu {
   &::after,
   &::before {
     content:      '';
-    border-width: 0 ~"calc(0.8 * var(--size))" var(--size) 0;
-    left:         ~"calc(-0.8 * var(--size) + 2.5px)";
     top:          0;
-    // top:          ~"calc(-1 * var(--border-width))";
+    left:         ~"calc(-0.8 * var(--size) + 2.5px)";
     display:      block;
     position:     absolute;
     box-sizing:   content-box;
+    border-width: 0 ~"calc(0.8 * var(--size))" var(--size) 0;
     border-color: transparent var(--border-color);
-    border-style: solid;
-  }
-  &::after {
-    border-color: transparent var(--background-color);
-  }
-  &::before {
-    margin: -1px 0 0 -1.5px;
+    border-style: solid }
 
-  }
+  // The actual arrow
+  &::after {
+    border-color: transparent var(--background-color) }
+
+  // Border for the arrow
+  &::before {
+    margin: -1px 0 0 -1.5px }
 }

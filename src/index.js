@@ -22,6 +22,32 @@ let command  = {
   disable: 'use-native-menu',
 }
 
+// function decorateTreeView (tree) {
+//
+//   tree
+//     .element
+//     .querySelectorAll('[class*="-active-item"]')
+//     .forEach(ob => ob.classList.remove('has-active-item'))
+//   tree
+//     .revealActiveFile()
+//
+//   let el = tree.selectActiveFile()
+//   let activeElements = new Set()
+//   if (!el)
+//     return activeElements
+//   el.classList.add('is-active-item')
+//
+//   while ((el = el.parentElement) &&
+//          !el.classList.contains('tree-view-root')) {
+//
+//     activeElements.add(el)
+//     el.classList.add('has-active-item')
+//   }
+//
+//   console.log(activeElements)
+//   return activeElements
+// }
+
 const cmd = (name) => atom.commands.add(ns, `${pack}:${command[name]}`, () => menu[name]())
 
 export const config = require('../config.json')
@@ -37,6 +63,7 @@ export function activate () {
     cmd('toggle'),
     cmd('enable'),
     cmd('disable'),
+    // atom.commands.add(ns, `${pack}:tree-view-decorz`, decorateTreeView),
     settngs.observe(settngs.update),
     atom.config.observe(`${pack}.contextMenuEnabled`, onConfigChange),
     atom.views.addViewProvider(model.ContextMenu, model => createMenuView(model)),
@@ -46,6 +73,18 @@ export function activate () {
 
   menu.fragments.add(menuFragment, testFragment)
   menu.enable()
+
+  // setTimeout(()=> {
+  //   let tree = atom.packages
+  //     .getLoadedPackage('tree-view')
+  //     .mainModule
+  //     .getTreeViewInstance()
+  //   let treDeco = () => decorateTreeView(tree)
+  //   tree.element
+  //     .addEventListener('mouseup', treDeco)
+  //   this.subscriptions.add(new Disposable(() =>
+  //     tree.element.removeEventListener('mouseup', treDeco)))
+  // }, 1500)
 }
 
 function onConfigChange (config) {
@@ -60,9 +99,24 @@ export function deactivate () {
   menu.disable()
 }
 
+type fragment = {
+  asd: number
+};
+
+export function consumeContextMenu (menu) {
+  console.info('.................')
+  console.info('.................')
+  console.info('.................')
+  console.info('.................')
+  console.info('.................')
+  console.info('.................')
+  console.info('.................')
+  console.info(menu)
+}
+
 export function provideContextMenu () {
   return ({
-    Fragment:    model.Fragment,
-    addFragment: (properties: FragmentProperties) => menu.fragments.add(new model.Fragment(properties))
+    addFragment:    model.Fragment,
+    removeFragment: (properties): fragment => menu.fragments.add(new model.Fragment(properties))
   })
 }

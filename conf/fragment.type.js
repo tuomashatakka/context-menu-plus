@@ -1,5 +1,7 @@
-// @flow
+/**
+ * @flow
+ */
 
-declare type FragmentProperties = {
+type fragment$Properties = {
   priority?: number
 }

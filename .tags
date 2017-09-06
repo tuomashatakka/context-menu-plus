@@ -154,6 +154,7 @@ concat-map	.\package-lock.json	/^        "concat-map": "0.0.1"$/;"	f
 concat-map	.\package-lock.json	/^    "concat-map": {$/;"	f
 concat-stream	.\package-lock.json	/^        "concat-stream": "1.6.0",$/;"	f
 concat-stream	.\package-lock.json	/^    "concat-stream": {$/;"	f
+consumedServices	.\package.json	/^  "consumedServices": {$/;"	f
 context-menu	.\package.json	/^    "context-menu": {$/;"	f
 contextMenuEnabled	.\config.json	/^  "contextMenuEnabled": {$/;"	f
 core-js	.\package-lock.json	/^        "core-js": "1.2.7",$/;"	f
@@ -181,6 +182,7 @@ decompress-response	.\package-lock.json	/^        "decompress-response": "3.3.0"
 decompress-response	.\package-lock.json	/^    "decompress-response": {$/;"	f
 deep-is	.\package-lock.json	/^        "deep-is": "0.1.3",$/;"	f
 deep-is	.\package-lock.json	/^    "deep-is": {$/;"	f
+default	.\config.json	/^    "default": 2,$/;"	f
 default	.\config.json	/^    "default": true$/;"	f
 del	.\package-lock.json	/^        "del": "2.2.2",$/;"	f
 del	.\package-lock.json	/^    "del": {$/;"	f
@@ -189,6 +191,7 @@ delayed-stream	.\package-lock.json	/^    "delayed-stream": {$/;"	f
 dependencies	.\package-lock.json	/^      "dependencies": {$/;"	f
 dependencies	.\package-lock.json	/^  "dependencies": {$/;"	f
 dependencies	.\package.json	/^  "dependencies": {$/;"	f
+description	.\config.json	/^    "description": "Spacing for the context menu items",$/;"	f
 description	.\config.json	/^    "description": "Uncheck to enable the native context menu",$/;"	f
 description	.\package.json	/^      "description": "Display a custom view in context menu",$/;"	f
 description	.\package.json	/^  "description": "...",$/;"	f
@@ -210,6 +213,7 @@ emit	.\package.json	/^      "emit": true,$/;"	f
 encoding	.\package-lock.json	/^        "encoding": "0.1.12",$/;"	f
 encoding	.\package-lock.json	/^    "encoding": {$/;"	f
 engines	.\package.json	/^  "engines": {$/;"	f
+enum	.\config.json	/^    "enum": [ 1, 1.33, 1.67, 2, 2.33, 2.67, 3 ]$/;"	f
 env	.\package.json	/^    "env": {$/;"	f
 error-ex	.\package-lock.json	/^        "error-ex": "1.3.1"$/;"	f
 error-ex	.\package-lock.json	/^    "error-ex": {$/;"	f
@@ -744,6 +748,7 @@ jsx	.\package.json	/^        "jsx": true$/;"	f
 keywords	.\package.json	/^  "keywords": [$/;"	f
 lcid	.\package-lock.json	/^        "lcid": "1.0.0"$/;"	f
 lcid	.\package-lock.json	/^    "lcid": {$/;"	f
+let.type	.\src\models\Fragment.js	/^    let data = { item, type: this.constructor.name }$/;"	p
 levn	.\package-lock.json	/^        "levn": "0.3.0",$/;"	f
 levn	.\package-lock.json	/^    "levn": {$/;"	f
 license	.\package.json	/^  "license": "MIT",$/;"	f
@@ -1275,6 +1280,7 @@ slice-stream	.\package-lock.json	/^    "slice-stream": {$/;"	f
 sntp	.\package-lock.json	/^        "sntp": "1.0.9"$/;"	f
 sntp	.\package-lock.json	/^    "sntp": {$/;"	f
 sourceType	.\package.json	/^      "sourceType": "module",$/;"	f
+spacing	.\config.json	/^  "spacing": {$/;"	f
 spdx-correct	.\package-lock.json	/^        "spdx-correct": "1.0.2",$/;"	f
 spdx-correct	.\package-lock.json	/^    "spdx-correct": {$/;"	f
 spdx-expression-parse	.\package-lock.json	/^        "spdx-expression-parse": "1.0.4"$/;"	f
@@ -1326,6 +1332,7 @@ through	.\package-lock.json	/^    "through": {$/;"	f
 timed-out	.\package-lock.json	/^        "timed-out": "4.0.1",$/;"	f
 timed-out	.\package-lock.json	/^    "timed-out": {$/;"	f
 title	.\config.json	/^    "title": "Enable context menu plus",$/;"	f
+title	.\config.json	/^    "title": "Item spacing",$/;"	f
 tmp	.\package-lock.json	/^        "tmp": "0.0.31"$/;"	f
 tmp	.\package-lock.json	/^    "tmp": {$/;"	f
 to-fast-properties	.\package-lock.json	/^        "to-fast-properties": "1.0.3"$/;"	f
@@ -1341,10 +1348,12 @@ tunnel-agent	.\package-lock.json	/^    "tunnel-agent": {$/;"	f
 tweetnacl	.\package-lock.json	/^        "tweetnacl": "0.14.5"$/;"	f
 tweetnacl	.\package-lock.json	/^    "tweetnacl": {$/;"	f
 type	.\config.json	/^    "type": "boolean",$/;"	f
+type	.\config.json	/^    "type": "number",$/;"	f
 type-check	.\package-lock.json	/^        "type-check": "0.3.2"$/;"	f
 type-check	.\package-lock.json	/^        "type-check": "0.3.2",$/;"	f
 type-check	.\package-lock.json	/^    "type-check": {$/;"	f
 type.appVersion	.\conf\atom.type.js	/^  appVersion: string,$/;"	p
+type.asd	.\src\index.js	/^  asd: number$/;"	p
 type.atomScriptMode	.\conf\atom.type.js	/^  atomScriptMode: ?boolean, \/\/ Added by nuclide-atom-script.$/;"	p
 type.autoDecreaseIndent	.\conf\atom.type.js	/^  autoDecreaseIndent: boolean,$/;"	p
 type.autoIndent	.\conf\atom.type.js	/^  autoIndent: boolean,$/;"	p
@@ -1415,6 +1424,7 @@ url-parse-lax	.\package-lock.json	/^        "url-parse-lax": "1.0.0",$/;"	f
 url-parse-lax	.\package-lock.json	/^    "url-parse-lax": {$/;"	f
 url-to-options	.\package-lock.json	/^        "url-to-options": "1.0.1"$/;"	f
 url-to-options	.\package-lock.json	/^    "url-to-options": {$/;"	f
+use babel.spacing	.\src\config.js	/^  spacing: { unit: 'em' }$/;"	p
 util-deprecate	.\package-lock.json	/^        "util-deprecate": "1.0.2"$/;"	f
 util-deprecate	.\package-lock.json	/^    "util-deprecate": {$/;"	f
 uuid	.\package-lock.json	/^        "uuid": "3.1.0"$/;"	f
@@ -1591,6 +1601,7 @@ version	.\package-lock.json	/^      "version": "github:yields\/merge#2f357cb501c
 version	.\package-lock.json	/^  "version": "0.0.0",$/;"	f
 version	.\package.json	/^        "version": "15.5.4"$/;"	f
 version	.\package.json	/^  "version": "0.0.0",$/;"	f
+versions	.\package.json	/^      "versions": { "1.0.0": "consumeContextMenu" }$/;"	f
 versions	.\package.json	/^      "versions": { "1.0.0": "provideContextMenu" }$/;"	f
 viewport	.\package-lock.json	/^        "viewport": "2.0.1"$/;"	f
 viewport	.\package-lock.json	/^    "viewport": {$/;"	f
