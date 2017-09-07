@@ -17,10 +17,24 @@ export default class MenuFragment extends Fragment {
     this.properties.set('name', 'menu')
   }
 
+  getEntries (detail) {
+
+    // Resolve entries for the context menu
+    let entries = atom.contextMenu.templateForEvent(detail.event)
+    if (!entries.length)
+      return
+
+    // Inject a reference to the target element
+    // into the returned entries
+    let { element } = detail
+    return entries.map(item => Object.assign({}, item, { element }))
+  }
+
   render (detail) {
+    let entries = this.getEntries(detail)
     let list = document.createElement('ul')
 
-    for (let item of detail.entries) {
+    for (let item of entries) {
       let el = document.createElement('li')
       el.textContent = item.label
       if (item.submenu) {
@@ -36,7 +50,6 @@ export default class MenuFragment extends Fragment {
         el.addEventListener('click', dispatch.bind(this, item), true)
       list.appendChild(el)
     }
-
     return list
     // let element = super.render()
   }

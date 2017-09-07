@@ -1,14 +1,14 @@
 'use babel'
 //@flow
 
-import { CompositeDisposable } from 'atom'
+import { CompositeDisposable, Disposable } from 'atom'
 import settngs from './config'
 import * as model from './models'
 import createMenuView from './views/ContextMenuView'
 import createFragmentView from './views/FragmentView'
 import SF from './models/StaticFragment'
 
-let menu
+export let menu
 
 let subscriptions
 
@@ -22,32 +22,6 @@ let command  = {
   disable: 'use-native-menu',
 }
 
-// function decorateTreeView (tree) {
-//
-//   tree
-//     .element
-//     .querySelectorAll('[class*="-active-item"]')
-//     .forEach(ob => ob.classList.remove('has-active-item'))
-//   tree
-//     .revealActiveFile()
-//
-//   let el = tree.selectActiveFile()
-//   let activeElements = new Set()
-//   if (!el)
-//     return activeElements
-//   el.classList.add('is-active-item')
-//
-//   while ((el = el.parentElement) &&
-//          !el.classList.contains('tree-view-root')) {
-//
-//     activeElements.add(el)
-//     el.classList.add('has-active-item')
-//   }
-//
-//   console.log(activeElements)
-//   return activeElements
-// }
-
 const cmd = (name) => atom.commands.add(ns, `${pack}:${command[name]}`, () => menu[name]())
 
 export const config = require('../config.json')
@@ -56,8 +30,8 @@ export function activate () {
 
   let menuFragment = new model.MenuFragment()
   let testFragment = new SF()
-  subscriptions = new CompositeDisposable()
-  menu = new model.ContextMenu()
+  subscriptions    = new CompositeDisposable()
+  menu             = new model.ContextMenu()
 
   subscriptions.add(
     cmd('toggle'),
@@ -71,24 +45,15 @@ export function activate () {
     atom.keymaps.add(ns, { 'ctrl-alt-*': command.toggle })
   )
 
-  menu.fragments.add(menuFragment, testFragment)
-  menu.enable()
+  menu.fragments.add(
+    menuFragment,
+    testFragment)
 
-  // setTimeout(()=> {
-  //   let tree = atom.packages
-  //     .getLoadedPackage('tree-view')
-  //     .mainModule
-  //     .getTreeViewInstance()
-  //   let treDeco = () => decorateTreeView(tree)
-  //   tree.element
-  //     .addEventListener('mouseup', treDeco)
-  //   this.subscriptions.add(new Disposable(() =>
-  //     tree.element.removeEventListener('mouseup', treDeco)))
-  // }, 1500)
+  menu.enable()
 }
 
 function onConfigChange (config) {
-  if (config.contextMenuEnabled)
+  if (config && config.contextMenuEnabled)
     menu.enable()
   else
     menu.disable()
@@ -104,19 +69,45 @@ type fragment = {
 };
 
 export function consumeContextMenu (menu) {
-  console.info('.................')
-  console.info('.................')
-  console.info('.................')
-  console.info('.................')
-  console.info('.................')
-  console.info('.................')
-  console.info('.................')
-  console.info(menu)
+  console.info(`
+    .................
+    .................
+    .................
+    .................
+    .................
+    .................
+    .................`,
+    menu,
+    `.................
+    .................
+    .................
+    .................
+  `)
+  window.conte = menu
 }
 
 export function provideContextMenu () {
-  return ({
-    addFragment:    model.Fragment,
-    removeFragment: (properties): fragment => menu.fragments.add(new model.Fragment(properties))
-  })
+  return {
+    addFragment,
+    removeFragment,
+    clearFragments,
+  }
+}
+
+const clearFragments = () => menu.clearFragments()
+
+const removeFragment = keyOrItem => menu.removeFragment(keyOrItem)
+
+const addFragment    = (item, properties={}) => {
+
+  if (!item)
+    throw new TypeError(`Item is not defined`)
+
+  let fragment   = new model.Fragment({ ...properties, item })
+  let disposable = new Disposable(() => menu.removeFragment(fragment))
+  console.log(fragment)
+  menu.addFragment(fragment)
+  console.log(menu, menu.fragments.count())
+  subscriptions.add(disposable)
+  return fragment
 }

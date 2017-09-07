@@ -5,26 +5,45 @@ import Fragment from './Fragment'
 export default class FragmentsCollection {
 
   constructor () {
-    this.list = []
+    this.list = new Set()
   }
 
   add (...fragments) {
     fragments.forEach(fragment =>
       fragment instanceof Fragment &&
-      this.list.push(fragment)
+      this.list.add(fragment)
     )
-
-    this.list = this.list.sort(sortByPriority)
   }
-
+  count() {
+    return this.list.size
+  }
+  all () {
+    return Array.from(this.list).sort(sortByPriority)
+  }
   find (fn) {
-    return this.list.find(fn)
+    return Array.from(this.list).find(fn)
+  }
+  has (fr) {
+    let item = this.find(item => item.isEqual(fr))
+    console.warn("found", item)
+    return item ? true : false
+  }
+  get (fr) {
+    if (typeof fr === 'string')
+      return this.find(item => item.key === fr)
+    return this.find(item => item.isEqual(fr))
+  }
+  clear () {
+    for (let fragment of this.list)
+      fragment.destroy()
+    this.list.clear()
   }
 
   async update (detail={}) {
     let children = []
+    let list = this.all()
 
-    for (let fragment of this.list) {
+    for (let fragment of list) {
 
       let view = atom.views.getView(fragment)
       if (!view)

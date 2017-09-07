@@ -25,7 +25,7 @@ atom-context-menu {
   --border-width:      0;
   --border-radius:     @component-border-radius;
 
-  --border-color:      lighten(@overlay-background-color, 7%);
+  --border-color:      lighten(@overlay-background-color, 12%);
   --separator-color:   lighten(@overlay-background-color, 10%);
   --background-color:  lighten(@overlay-background-color, 3%);
 
@@ -165,5 +165,5 @@ atom-context-menu {
 
   // Border for the arrow
   &::before {
-    margin: -1px 0 0 -1.5px }
+    margin: ~"calc(-1 * var(--border-width))" 0 0 -2.5px }
 }

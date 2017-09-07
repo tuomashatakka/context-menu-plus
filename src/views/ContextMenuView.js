@@ -98,10 +98,11 @@ class ContextMenuView extends HTMLElement {
 customElements.define('atom-context-menu', ContextMenuView)
 
 module.exports = (model) => {
+  let host = atom.views.getView(atom.workspace)
   let view = document.createElement('atom-context-menu')
   view.model = model
   model.item = view
-  document.body.appendChild(view)
+  host.appendChild(view)
   return view
 
 }

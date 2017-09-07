@@ -1,14 +1,35 @@
 'use babel'
 
 import self from 'autobind-decorator'
-
 import FragmentsCollection from './FragmentsCollection'
+
 
 export default class ContextMenu {
 
   constructor (...fragments) {
     this.fragments   = new FragmentsCollection()
     fragments.forEach(fr => this.fragments.add(fr))
+  }
+
+  addFragment (fragment) {
+    console.log("fragment .......", fragment, this.fragments.count)
+    let hasFragment = this.fragments.has(fragment)
+
+    console.log(hasFragment )
+    if (!hasFragment)
+      this.fragments.add(fragment)
+    console.log("fragment .......", fragment, this.fragments)
+  }
+
+  removeFragment (fragmentOrKey) {
+    if (this.fragments.has(fragmentOrKey))
+      this.fragments.remove(fragmentOrKey)
+    this.fragments.update()
+  }
+
+  clearFragments () {
+    this.fragments.clear()
+    this.fragments.update()
   }
 
   enable () {
@@ -40,15 +61,10 @@ export default class ContextMenu {
   @self
   handleContextMenuEvent (ev) {
 
-    // Resolve entries for the context menu
-    let entries = atom.contextMenu.templateForEvent(ev)
+    // Extract the key parameters from the event and
+    // display the custom context menu
     let { clientX: x, clientY: y, target: element } = event
-
-    if (!entries.length)
-      return
-
-    // Display the custom menu
-    this.displayMenu (entries, { element, clientPosition: [ x, y ] })
+    this.displayMenu (event, { element, position: [ x, y ] })
 
     // Prevent the original menu from showing
     ev.stopImmediatePropagation()
@@ -67,14 +83,13 @@ export default class ContextMenu {
   }
 
   @self
-  async displayMenu (items=[], properties={}) {
-    let { element, clientPosition } = properties
-    let manager   = this
-    let entries   = items.map(item => Object.assign({}, item, { element }))
-    let detail    = { ...properties, entries, manager }
-    let [ x, y ]  = clientPosition
-    let view      = atom.views.getView(this)
-    let children  = await this.fragments.update(detail)
+  async displayMenu (event, properties={}) {
+    let [ x, y ] = properties.position
+    let manager  = this
+
+    let view     = atom.views.getView(this)
+    let detail   = { ...properties, event, manager }
+    let children = await this.fragments.update(detail)
 
     view.contentElement.append(...children)
     view.show(x, y)

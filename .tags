@@ -799,7 +799,7 @@ ms	.\package-lock.json	/^    "ms": {$/;"	f
 mute-stream	.\package-lock.json	/^        "mute-stream": "0.0.7",$/;"	f
 mute-stream	.\package-lock.json	/^    "mute-stream": {$/;"	f
 name	.\package-lock.json	/^  "name": "context-menu-plus",$/;"	f
-name	.\package.json	/^  "name": "context-menu-plus",$/;"	f
+name	.\package.json	/^  "name": "context-menu-infinite",$/;"	f
 natives	.\package-lock.json	/^            "natives": "1.1.0"$/;"	f
 natives	.\package-lock.json	/^    "natives": {$/;"	f
 natural-compare	.\package-lock.json	/^        "natural-compare": "1.4.0",$/;"	f
