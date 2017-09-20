@@ -11,6 +11,7 @@ import SF from './models/StaticFragment'
 export let menu
 
 let subscriptions
+let watchSubscription
 
 let ns   = "atom-workspace"
 
@@ -25,6 +26,10 @@ let command  = {
 const cmd = (name) => atom.commands.add(ns, `${pack}:${command[name]}`, () => menu[name]())
 
 export const config = require('../config.json')
+
+export function initialize () {
+  watchSubscription = require('./develop')(pack)
+}
 
 export function activate () {
 
@@ -44,7 +49,8 @@ export function activate () {
     atom.views.addViewProvider(model.Fragment, model => createFragmentView(model)),
     atom.keymaps.add(ns, { 'ctrl-alt-*': command.toggle })
   )
-
+  console.log('menuu', menu);
+  console.log('menuu', menu);
   menu.fragments.add(
     menuFragment,
     testFragment)
@@ -60,6 +66,7 @@ function onConfigChange (config) {
 }
 
 export function deactivate () {
+  watchSubscription.dispose()
   subscriptions.dispose()
   menu.disable()
 }
@@ -69,20 +76,6 @@ type fragment = {
 };
 
 export function consumeContextMenu (menu) {
-  console.info(`
-    .................
-    .................
-    .................
-    .................
-    .................
-    .................
-    .................`,
-    menu,
-    `.................
-    .................
-    .................
-    .................
-  `)
   window.conte = menu
 }
 
