@@ -14,7 +14,6 @@ export function observe (...key) {
 }
 
 export function update(attrs={}) {
-  console.warn('Updating config', attrs)
   let el = document.body
 
   for (let [k,v] of Object.entries(attrs)) {

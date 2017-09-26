@@ -4,7 +4,6 @@ import Fragment from './Fragment'
 function dispatch (item, origin) {
   let detail = item.commandDetail
   let event  = new CustomEvent(item.command, { detail })
-  console.warn("dispatching", item, event)
   item.element.dispatchEvent(event, { detail })
   origin.stopImmediatePropagation()
 }

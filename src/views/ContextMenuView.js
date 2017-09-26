@@ -33,6 +33,16 @@ class ContextMenuView extends HTMLElement {
     this.contentElement.innerHTML = ''
   }
 
+  isWithinBounds (x, y) {
+    let rect = this.getBoundingClientRect()
+
+    if (x > rect.left && y > rect.top &&
+        x < rect.left + rect.width &&
+        y < rect.top + rect.height)
+      return true
+    return false
+  }
+
   hide () {
     this.classList.add('hidden')
     this.classList.remove('open')
