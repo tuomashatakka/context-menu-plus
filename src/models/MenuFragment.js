@@ -3,6 +3,7 @@ import Fragment from './Fragment'
 
 function dispatch (item, initial, origin) {
   let detail = item.commandDetail
+<<<<<<< HEAD
   let { element, command } = item
 
 
@@ -18,6 +19,10 @@ function dispatch (item, initial, origin) {
   }
 
   console.warn("dispatched", { item, event, initial, origin })
+=======
+  let event  = new CustomEvent(item.command, { detail })
+  item.element.dispatchEvent(event, { detail })
+>>>>>>> 8c66aa9f636518db8fe6c470d087acada21eb649
   origin.stopImmediatePropagation()
 }
 

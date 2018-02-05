@@ -1,8 +1,14 @@
 'use babel'
+// @flow
+
+import type Fragment from './Fragment'
+import type { FragmentProperties } from '..'
 
 export default class ContextMenuFragment {
 
-  static equal (f1, f2) {
+  item: HTMLElement
+
+  static equal (f1, f2): boolean {
 
     // If either of the compared items is not an instance
     // of ContextMenuFragment, items are not equal fragment-wise
@@ -12,7 +18,7 @@ export default class ContextMenuFragment {
     // If either items or keys of the compared items match,
     // the fragments are equal
     let keys  = f1.key  && f1.key === f2.key
-    let items = f1.item && f1.item == f2.item
+    let items = f1.item && f1.item === f2.item
     if (keys || items)
       return true
 
@@ -21,17 +27,18 @@ export default class ContextMenuFragment {
     let one = f1.toJSON()
     let two = f2.toJSON()
     for (let [ key, val ] of Object.entries(one))
-      if (two[key] != val)
+      if (two[key] !== val)
         return false
     return true
 
   }
 
-  isEqual (fragment) {
+  isEqual (fragment: Fragment) {
     return ContextMenuFragment.equal(this, fragment)
   }
 
-  constructor (props={}) {
+  /* eslint-disable complexity */
+  constructor (props: FragmentProperties={}) {
 
     let properties = new Map()
     let item
@@ -48,6 +55,7 @@ export default class ContextMenuFragment {
     this.item = item
     this.properties = properties
   }
+  /* eslint-enable: complexity */
 
   get key () {
     return (

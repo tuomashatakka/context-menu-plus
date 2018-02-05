@@ -1,11 +1,11 @@
 [ignore]
 
 [include]
-
-[libs]
 conf/atom.type.js
 conf/atom.jasmine.type.js
 conf/fragment.type.js
+
+[libs]
 flow-typed/**
 
 [lints]
