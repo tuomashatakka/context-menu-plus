@@ -33,13 +33,13 @@ export default class ContextMenu {
   }
 
   enable () {
-    window.addEventListener('contextmenu', this.handleContextMenuEvent, true)
+    atom.views.getView(atom.workspace).addEventListener('contextmenu', this.handleContextMenuEvent, true)
     document.addEventListener('click', this.hideMenu)
     this.enabled = true
   }
 
   disable () {
-    window.removeEventListener('contextmenu', this.handleContextMenuEvent, true)
+    atom.views.getView(atom.workspace).removeEventListener('contextmenu', this.handleContextMenuEvent, true)
     document.removeEventListener('click', this.hideMenu)
     this.enabled = false
   }
@@ -59,7 +59,7 @@ export default class ContextMenu {
   }
 
   @self
-  handleContextMenuEvent (ev) {
+  handleContextMenuEvent (event) {
 
     // Extract the key parameters from the event and
     // display the custom context menu
@@ -67,7 +67,7 @@ export default class ContextMenu {
     this.displayMenu (event, { element, position: [ x, y ] })
 
     // Prevent the original menu from showing
-    ev.stopImmediatePropagation()
+    event.stopPropagation()
   }
 
   isEnabled () {

@@ -1,11 +1,23 @@
 'use babel'
 import Fragment from './Fragment'
 
-function dispatch (item, origin) {
+function dispatch (item, initial, origin) {
   let detail = item.commandDetail
-  let event  = new CustomEvent(item.command, { detail })
-  console.warn("dispatching", item, event)
-  item.element.dispatchEvent(event, { detail })
+  let { element, command } = item
+
+
+  let r = atom.commands.dispatch(element, 'mousedown', detail)
+  let r2 =atom.commands.dispatch(element, 'click', detail)
+  console.log(r, r2)
+  let result = atom.commands.dispatch(element, command, detail)
+
+  if (!result) {
+    let event  = new CustomEvent(command, { detail })
+    event.target = initial.event.target
+    element.dispatchEvent(event, { detail })
+  }
+
+  console.warn("dispatched", { item, event, initial, origin })
   origin.stopImmediatePropagation()
 }
 
@@ -47,7 +59,7 @@ export default class MenuFragment extends Fragment {
         })
       }
       if (item.command)
-        el.addEventListener('click', dispatch.bind(this, item), true)
+        el.addEventListener('click', dispatch.bind(this, item, detail), true)
       list.appendChild(el)
     }
     return list
